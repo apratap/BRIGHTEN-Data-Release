@@ -14,12 +14,17 @@ Python and the Synapse python library will need to be setup in the environment. 
 ```{r Setting Environment}
 #Synapse login
 
-REPOSITORY <- syn5903785 #source synapse repo
+REPOSITORY <- "syn5903785" #source synapse repo
 
 #Needed Libraries 
 # Setup loop to check in library is installed....
 library(synapser) #Synapse API
-library(PythonInR) #required to use some of sysapse API
+library(reticulate) #Python integration into R studio
+syn <- synLogin(USERNAME, PASSWORD)
+synapseclient = import('synapseclient')
+synapseutils <- import('synapseutils') 
+
+#library(PythonInR) #required to use some of sysapse API
 
 #some libraries are used from python
 
@@ -34,10 +39,8 @@ DATADIRECTORY <- "../Data/"
 
 #HOMEDIR <- Sys.getenv("R_USER") #sets a constant for your home dir
 
-syn <- synLogin(USERNAME, PASSWORD)
 
-pyExec('import synapseclient
-import synapseutils') 
+
 ```
 
 # Extraction from Synapse
@@ -45,8 +48,11 @@ import synapseutils')
 We will load the BRIGHTEN repository into the local Synapse cache.
 
 ```{r}
-BEGIN.Python()
-all_files = synapseutils.syncFromSynapse(syn, entity=REPOSITORY)
+synapseutils$syncFromSynapse(syn, entity=REPOSITORY)
+  
+  
+  
+synapseutils.syncFromSynapse(syn, entity=REPOSITORY)
 
 END.Python()
 ```
