@@ -1,0 +1,49 @@
+---
+title: "BRIGHTEN Data Release Project - Top Notebook"
+output: html_notebook
+---
+
+# Summary
+
+
+# Top Matter
+
+
+## Authors
+
+
+## Organizations
+
+
+## Project Description
+
+
+### Parent project (BRIGHTEN)
+
+
+### Data Repository (Synapse)
+
+
+### Code Repository (GitHub)
+
+
+# Tasks Listing
+
+
+## Current Tasks
+
+Task                                                   | Date Started | Date Completed 
+-------------------------------------------------------|--------------|------------
+Description of Initial Contents of Synapse Repository | 2018/03/26   |
+
+## Prior Tasks
+
+Task                                                   | Date Started | Date Completed 
+-------------------------------------------------------|--------------|------------
+
+
+# Project Notebooks
+
+Notebook Name                               | Description
+--------------------------------------------|-----------------------
+1 - Description of Initially Available Data | Analysis of data as initially presented. Describes Synology IDs, file names, variables, and their frequencies.

@@ -1,0 +1,59 @@
+---
+title: "1 - Description of Initially Available Data"
+output: html_notebook
+---
+
+# Summary
+
+A report of data quality necessary for planing of ETL activities for generation of a final and public repository of BRIGHTEN reserach data. Original files, their version, synapse ID, name, and contained variables are described in part 1. In part 2 all variables are described by the synapse ID of thier containing file, data type, frequency of subjects, frequency of tasks, mean, and standard deviation
+
+# Environment
+
+Python and the Synapse python library will need to be setup in the environment. Other variables and R libraries are fully configured here. Enter your username and password for Synapse.org.
+
+```{r Setting Environment}
+#Synapse login
+
+REPOSITORY <- syn5903785 #source synapse repo
+
+#Needed Libraries 
+# Setup loop to check in library is installed....
+library(synapser) #Synapse API
+library(PythonInR) #required to use some of sysapse API
+
+#some libraries are used from python
+
+
+
+#Constants
+
+#File locations and directories
+DATADIRECTORY <- "../Data/"
+
+#variables
+
+#HOMEDIR <- Sys.getenv("R_USER") #sets a constant for your home dir
+
+syn <- synLogin(USERNAME, PASSWORD)
+
+pyExec('import synapseclient
+import synapseutils') 
+```
+
+# Extraction from Synapse
+
+We will load the BRIGHTEN repository into the local Synapse cache.
+
+```{r}
+BEGIN.Python()
+all_files = synapseutils.syncFromSynapse(syn, entity=REPOSITORY)
+
+END.Python()
+```
+
+The following files were chosen for review:
+
+
+
+Data are extracted from the synology data repository. 
+
