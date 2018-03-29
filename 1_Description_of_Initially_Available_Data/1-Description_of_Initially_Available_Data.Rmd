@@ -15,8 +15,7 @@ Python and the Synapse python library will need to be setup in the environment. 
 #Synapse login
 
 REPOSITORY <- "syn5903785" #source synapse repo
-USERNAME <- "rwbuie@gmail.com" #your synapse account user name (email)
-PASSWORD <- "JohnyGrandpa2018" #your synapse password
+
 
 #Needed Libraries 
 # Setup loop to check in library is installed....
