@@ -44,6 +44,6 @@ Task                                                   | Date Started | Date Com
 
 # Project Notebooks
 
-Notebook Name                               | Description
---------------------------------------------|-----------------------
-1 - Description of Initially Available Data | Analysis of data as initially presented. Describes Synology IDs, file names, variables, and their frequencies.
+Notebook Name                               | URI                        | Description       
+--------------------------------------------|----------------------------|---------------------------- 
+1 - Description of Initially Available Data |                            | Analysis of data as initially presented. Describes Synology IDs, file names, variables, and their frequencies.
