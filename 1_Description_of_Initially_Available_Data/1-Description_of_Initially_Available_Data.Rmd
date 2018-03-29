@@ -12,55 +12,133 @@ A report of data quality necessary for planing of ETL activities for generation 
 Python and the Synapse python library will need to be setup in the environment. Other variables and R libraries are fully configured here. Enter your username and password for Synapse.org.
 
 ```{r Setting Environment}
-#Synapse login
-
-REPOSITORY <- "syn5903785" #source synapse repo
-
-
 #Needed Libraries 
 # Setup loop to check in library is installed....
-library(synapser) #Synapse API
+#library(synapser) #Synapse API
 library(reticulate) #Python integration into R studio
-syn <- synLogin(USERNAME, PASSWORD)
-synapseclient <- import('synapseclient')
-synapseutils <- import('synapseutils') 
-syn <- synapseclient$login(USERNAME, PASSWORD)
+
 
 #library(PythonInR) #required to use some of sysapse API
 
 #some libraries are used from python
-
-
+synapseclient <- import('synapseclient')
+synapseutils <- import('synapseutils') 
 
 #Constants
-
 #File locations and directories
 DATADIRECTORY <- "../Data/"
 
-#variables
+SYNLOGIN <- synapseclient$login() #generate synology login token
+```
 
-#HOMEDIR <- Sys.getenv("R_USER") #sets a constant for your home dir
+# Loading Custom Functions
 
+The following functions for working with our data are constructed and loaded here:
 
+```{r}
 
 ```
 
 # Extraction from Synapse
 
-We will load the BRIGHTEN repository into the local Synapse cache.
+The BRIGHTEN repository was loaded into a local project directory
 
 ```{r}
-synapseutils$syncFromSynapse(syn, REPOSITORY)
-  
-  
-  
-synapseutils.syncFromSynapse(syn, entity=REPOSITORY)
+
+#there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories.
+
+#synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952130", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
+
+V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
+ 
+
 
 ```
 
-The following files were chosen for review:
+The above code may not be functional for the V1 data set (as of this writing, 3/28/2018). If so, the below chunk can be used to pull the specific files requested, but does not maintain the V1 directory structure.
+
+```{r}
+
+V1a <- SYNLOGIN$get("syn10236547", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1b <- SYNLOGIN$get("syn10236538", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1c <- SYNLOGIN$get("syn10236539", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1d <- SYNLOGIN$get("syn10236540", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1e <- SYNLOGIN$get("syn10082863", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1f <- SYNLOGIN$get("syn10250483", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1g <- SYNLOGIN$get("syn10250484", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1h <- SYNLOGIN$get("syn10250487", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1i <- SYNLOGIN$get("syn10250488", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1j <- SYNLOGIN$get("syn10250489", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1k <- SYNLOGIN$get("syn10250490", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1l <- SYNLOGIN$get("syn10250491", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1m <- SYNLOGIN$get("syn10250493", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+V1n <- SYNLOGIN$get("syn10250494", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
 
 
+```
 
-Data are extracted from the synology data repository. 
+Summary data are reported for the following files
+
+Volume |File Name              | SynID        
+-------|-----------------------|-------------
+V1     |`r V1a$files`          | syn10236547
+V1     |`r V1b$files`          | syn10236538
+Syn10236538
+Syn10236539
+Syn10236540
+Syn10082863
+Syn10082863
+Syn10250483
+Syn10250484
+Syn10236547
+Syn10250487
+Syn10250488
+Syn10250489
+Syn10250490
+Syn10250491
+Syn10250493
+Syn10250494
+
+```{r}
+syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
+syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
+```
+
+```{r}
+library(knitr)
+
+
+summary(syn10236547)
+
+custom.summarizer <- function(DF, volume = "V1", SID) {
+  #construct an empty dataframe meeting specifications
+  toExport <- data.frame(Volume = character(), 
+                         SynapseID = character(),
+                         UserCount = numeric(),
+                         UniqueObs = numeric(),
+                         Observation = character(),
+                         mean = numeric(),
+                         SD = numeric(),
+                         Missing = numeric(), 
+                         stringsAsFactors = FALSE)
+  if(nrow(DF) > 0) {
+    for (i in 1:ncol(DF)) {
+      toExport[i,] <- c(volume, 
+                        SID, 
+                        length(unique(DF[,"user_id"])), 
+                        nrow(unique(DF)), 
+                        names(DF)[i], 
+                        mean(DF[,i], na.rm = TRUE), 
+                        sd(DF[,i], na.rm = TRUE), 
+                        sum(is.na(DF[,i])))
+    }
+  }
+  return(toExport)
+    
+}
+
+test <- custom.summarizer(syn10236538,, "syn10236538")
+test <- rbind(test, custom.summarizer(syn10236547,, "syn10236547"))
+
+```
 
