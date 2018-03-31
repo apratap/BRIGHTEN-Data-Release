@@ -39,6 +39,56 @@ SYNLOGIN <- synapseclient$login() #generate synology login token
 The following functions for working with our data are constructed and loaded here:
 
 ```{r}
+simple.content.listing <- function(VOL, INFO) {
+  output <- data.frame(volume = character(),
+                     synID = character(),
+                     fileName = character(),
+                     variables = character(),
+                     stringsAsFactors = FALSE)
+   `%!in%` <- Negate('%in%')
+                    
+  for(i in 1:(length(INFO))) {
+    print(i)
+    extension <- tools::file_ext(INFO[[i]]$files)
+    if(extension == "tsv"| extension == "txt") {
+      temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+    }
+    if(extension == "csv") {
+      temp <- read.csv(INFO[[i]]$path, header = TRUE)
+    }
+    if(extension == "xls" | extension == "xlsx") {
+      temp <- xlsx::read.xlsx(INFO[[i]]$path, sheetIndex = 1)
+    }  
+    if(!exists("temp")) {
+      temp <- "file read error"
+    }
+    
+    output[i,] <- c(VOL,
+                    INFO[[i]]$properties$id,
+                    INFO[[i]]$files,
+                    paste(names(temp), collapse = ", "))
+  }
+   return(output)
+}
+
+custom.counter <- function(VOL, SID, DESC, USERS, DF) {
+  #construct an empty dataframe meeting specifications
+  toExport <- data.frame(volume = character(),
+                         synID = character(),
+                         description = character(),
+                         userCount = numeric(),
+                         uniqueObs = numeric())
+  if(nrow(DF) > 0) {
+    for (i in 1:ncol(DF)) {
+      toExport[i,] <- c(VOL, 
+                        SID,
+                        DESC,
+                        nrow(unique(DF[,USERS])),
+                        sum(unique(DF)))
+    }
+  }
+  return(toExport)
+}
 
 #PRE string identifying volume label content, and synapse file description object (can be list)
 #POST data frame describing the variables in each file named in the synapse object.
@@ -102,10 +152,17 @@ The BRIGHTEN repository was loaded into a local project directory and a variable
 ```{r}
 
 #there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories. More specicifcally, it appears that hte bulk data pull throws an error when encountering WIKI files, as is found in the analysis directory. Skipping this directory (putting from the other two directories under V1) bypasses this problem.
+<<<<<<< HEAD
 
 
 V1aInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10236537", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
 
+=======
+
+
+V1aInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10236537", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
+
+>>>>>>> ed2b8b3bc35eb6d993aa9276bae06797aae73c18
 V1bInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn5908558", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
 
 V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
@@ -158,7 +215,17 @@ for(i in requiredV1IDs) {
                            NA,
                            NA)
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> ed2b8b3bc35eb6d993aa9276bae06797aae73c18
+
+requiredV2IDs <- c("syn11687434",
+                   "syn10165199",
+                   "syn10149532",
+                   "syn10164248",
+                   
+                   
 
 requiredV2IDs <- c("syn11687434",
                    "syn10165199",
