@@ -15,6 +15,9 @@ Python and the Synapse python library will need to be setup in the environment. 
 #Needed Libraries 
 # Setup loop to check in library is installed....
 #library(synapser) #Synapse API
+library(knitr)
+library(tools)
+library(xlsx)
 library(reticulate) #Python integration into R studio
 
 
@@ -37,43 +40,132 @@ The following functions for working with our data are constructed and loaded her
 
 ```{r}
 
+#PRE string identifying volume label content, and synapse file description object (can be list)
+#POST data frame describing the variables in each file named in the synapse object.
+simple.content.listing <- function(VOL, INFO) {
+  output <- data.frame(volume = character(),
+                     synID = character(),
+                     fileName = character(),
+                     variables = character(),
+                     stringsAsFactors = FALSE)
+   `%!in%` <- Negate('%in%')
+                    
+  for(i in 1:(length(INFO))) {
+    print(i)
+    extension <- tools::file_ext(INFO[[i]]$files)
+    if(extension == "tsv"| extension == "txt") {
+      temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+    }
+    if(extension == "csv") {
+      temp <- read.csv(INFO[[i]]$path, header = TRUE)
+    }
+    if(extension == "xls" | extension == "xlsx") {
+      temp <- xlsx::read.xlsx(INFO[[i]]$path, sheetIndex = 1)
+    }  
+    if(!exists("temp")) {
+      temp <- "file read error"
+    }
+    
+    output[i,] <- c(VOL,
+                    INFO[[i]]$properties$id,
+                    INFO[[i]]$files,
+                    paste(names(temp), collapse = ", "))
+  }
+   return(output)
+}
+
+custom.counter <- function(VOL, SID, DESC, USERS, DF) {
+  #construct an empty dataframe meeting specifications
+  toExport <- data.frame(volume = character(),
+                         synID = character(),
+                         description = character(),
+                         userCount = numeric(),
+                         uniqueObs = numeric())
+  if(nrow(DF) > 0) {
+    for (i in 1:ncol(DF)) {
+      toExport[i,] <- c(VOL, 
+                        SID,
+                        DESC,
+                        nrow(unique(DF[,USERS])),
+                        sum(unique(DF)))
+    }
+  }
+  return(toExport)
+}
+
 ```
 
 # Extraction from Synapse
 
-The BRIGHTEN repository was loaded into a local project directory
+The BRIGHTEN repository was loaded into a local project directory and a variable list generated for each file.
 
 ```{r}
 
-#there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories.
+#there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories. More specicifcally, it appears that hte bulk data pull throws an error when encountering WIKI files, as is found in the analysis directory. Skipping this directory (putting from the other two directories under V1) bypasses this problem.
 
-#synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952130", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
+
+V1aInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10236537", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
+
+V1bInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn5908558", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
 
 V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
- 
+
+FileContents <- simple.content.listing("V1", V1aInformation)
+FileContents <- rbind(FileContents, simple.content.listing("V1", V1bInformation))
+FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
+      
+
+
+FileContents
 
 
 ```
 
-The above code may not be functional for the V1 data set (as of this writing, 3/28/2018). If so, the below chunk can be used to pull the specific files requested, but does not maintain the V1 directory structure.
+
+
 
 ```{r}
 
-V1a <- SYNLOGIN$get("syn10236547", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1b <- SYNLOGIN$get("syn10236538", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1c <- SYNLOGIN$get("syn10236539", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1d <- SYNLOGIN$get("syn10236540", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1e <- SYNLOGIN$get("syn10082863", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1f <- SYNLOGIN$get("syn10250483", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1g <- SYNLOGIN$get("syn10250484", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1h <- SYNLOGIN$get("syn10250487", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1i <- SYNLOGIN$get("syn10250488", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1j <- SYNLOGIN$get("syn10250489", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1k <- SYNLOGIN$get("syn10250490", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1l <- SYNLOGIN$get("syn10250491", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1m <- SYNLOGIN$get("syn10250493", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-V1n <- SYNLOGIN$get("syn10250494", downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+FileInformation <- data.frame(version = character(),
+                              synapseID = character(),
+                              fileName = character(),
+                              fileDescription = character(),
+                              uniqueUsers = numeric(),
+                              uniqueObservations = numeric(),
+                              stringsAsFactors = FALSE)
 
+requiredV1IDs <- c("syn10236547",
+                   "syn10236538",
+                   "syn10236539",
+                   "syn10236540",
+                   "syn10082863",
+                   "syn10250483", 
+                   "syn10250484", 
+                   "syn10250487", 
+                   "syn10250488", 
+                   "syn10250489", 
+                   "syn10250490", 
+                   "syn10250491", 
+                   "syn10250493", 
+                   "syn10250494")
+
+for(i in requiredV1IDs) {
+  temp <- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+  FileInformation[i,] <- c("v1",
+                           i,
+                           temp$files,
+                           NA,
+                           NA,
+                           NA)
+}
+
+
+requiredV2IDs <- c("syn11687434",
+                   "syn10165199",
+                   "syn10149532",
+                   "syn10164248",
+                   
+                   
 
 ```
 
@@ -81,64 +173,25 @@ Summary data are reported for the following files
 
 Volume |File Name              | SynID        
 -------|-----------------------|-------------
-V1     |`r V1a$files`          | syn10236547
-V1     |`r V1b$files`          | syn10236538
-Syn10236538
-Syn10236539
-Syn10236540
-Syn10082863
-Syn10082863
-Syn10250483
-Syn10250484
-Syn10236547
-Syn10250487
-Syn10250488
-Syn10250489
-Syn10250490
-Syn10250491
-Syn10250493
-Syn10250494
+V1     |`r V1a$files`          |syn10236547
+V1     |`r V1b$files`          |syn10236538
+v1     |`r V1c$files`          |Syn10236539
+V1     |`r V1d$files`          |Syn10236540
+v1     |`r V1e$files`          |Syn10082863
+v1     |`r V1f$files`          |Syn10250483
+v1     |`r V1g$files`          |Syn10250484
+v1     |`r V1h$files`          |Syn10250487
+v1     |`r V1i$files`          |Syn10250488
+v1     |`r V1j$files`          |Syn10250489
+v1     |`r V1k$files`          |Syn10250490
+v1     |`r V1l$files`          |Syn10250491
+v1     |`r V1m$files`          |Syn10250493
+v1     |`r V1n$files`          |Syn10250494
 
 ```{r}
 syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
 syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
 ```
 
-```{r}
-library(knitr)
 
-
-summary(syn10236547)
-
-custom.summarizer <- function(DF, volume = "V1", SID) {
-  #construct an empty dataframe meeting specifications
-  toExport <- data.frame(Volume = character(), 
-                         SynapseID = character(),
-                         UserCount = numeric(),
-                         UniqueObs = numeric(),
-                         Observation = character(),
-                         mean = numeric(),
-                         SD = numeric(),
-                         Missing = numeric(), 
-                         stringsAsFactors = FALSE)
-  if(nrow(DF) > 0) {
-    for (i in 1:ncol(DF)) {
-      toExport[i,] <- c(volume, 
-                        SID, 
-                        length(unique(DF[,"user_id"])), 
-                        nrow(unique(DF)), 
-                        names(DF)[i], 
-                        mean(DF[,i], na.rm = TRUE), 
-                        sd(DF[,i], na.rm = TRUE), 
-                        sum(is.na(DF[,i])))
-    }
-  }
-  return(toExport)
-    
-}
-
-test <- custom.summarizer(syn10236538,, "syn10236538")
-test <- rbind(test, custom.summarizer(syn10236547,, "syn10236547"))
-
-```
 

@@ -182,25 +182,24 @@ $(document).ready(function () {
 <p>Python and the Synapse python library will need to be setup in the environment. Other variables and R libraries are fully configured here. Enter your username and password for Synapse.org.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI05lZWRlZCBMaWJyYXJpZXMgXG4jIFNldHVwIGxvb3AgdG8gY2hlY2sgaW4gbGlicmFyeSBpcyBpbnN0YWxsZWQuLi4uXG4jbGlicmFyeShzeW5hcHNlcikgI1N5bmFwc2UgQVBJXG5saWJyYXJ5KHJldGljdWxhdGUpICNQeXRob24gaW50ZWdyYXRpb24gaW50byBSIHN0dWRpb1xuXG5cbiNsaWJyYXJ5KFB5dGhvbkluUikgI3JlcXVpcmVkIHRvIHVzZSBzb21lIG9mIHN5c2Fwc2UgQVBJXG5cbiNzb21lIGxpYnJhcmllcyBhcmUgdXNlZCBmcm9tIHB5dGhvblxuc3luYXBzZWNsaWVudCA8LSBpbXBvcnQoJ3N5bmFwc2VjbGllbnQnKVxuc3luYXBzZXV0aWxzIDwtIGltcG9ydCgnc3luYXBzZXV0aWxzJykgXG5cbiNDb25zdGFudHNcbiNGaWxlIGxvY2F0aW9ucyBhbmQgZGlyZWN0b3JpZXNcbkRBVEFESVJFQ1RPUlkgPC0gXCIuLi9EYXRhL1wiXG5cblNZTkxPR0lOIDwtIHN5bmFwc2VjbGllbnQkbG9naW4oKSAjZ2VuZXJhdGUgc3lub2xvZ3kgbG9naW4gdG9rZW5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI05lZWRlZCBMaWJyYXJpZXMgXG4jIFNldHVwIGxvb3AgdG8gY2hlY2sgaW4gbGlicmFyeSBpcyBpbnN0YWxsZWQuLi4uXG4jbGlicmFyeShzeW5hcHNlcikgI1N5bmFwc2UgQVBJXG5saWJyYXJ5KGtuaXRyKVxubGlicmFyeShyZXRpY3VsYXRlKSAjUHl0aG9uIGludGVncmF0aW9uIGludG8gUiBzdHVkaW9cbiNsaWJyYXJ5KFB5dGhvbkluUikgI3JlcXVpcmVkIHRvIHVzZSBzb21lIG9mIHN5c2Fwc2UgQVBJXG4jc29tZSBsaWJyYXJpZXMgYXJlIHVzZWQgZnJvbSBweXRob25cbnN5bmFwc2VjbGllbnQgPC0gaW1wb3J0KCdzeW5hcHNlY2xpZW50JylcbnN5bmFwc2V1dGlscyA8LSBpbXBvcnQoJ3N5bmFwc2V1dGlscycpIFxuI0NvbnN0YW50c1xuI0ZpbGUgbG9jYXRpb25zIGFuZCBkaXJlY3Rvcmllc1xuREFUQURJUkVDVE9SWSA8LSBcIi4uL0RhdGEvXCJcblNZTkxPR0lOIDwtIHN5bmFwc2VjbGllbnQkbG9naW4oKSAjZ2VuZXJhdGUgc3lub2xvZ3kgbG9naW4gdG9rZW5cbmBgYCJ9 -->
 <pre class="r"><code>#Needed Libraries 
 # Setup loop to check in library is installed....
 #library(synapser) #Synapse API
+library(knitr)
 library(reticulate) #Python integration into R studio
-
-
 #library(PythonInR) #required to use some of sysapse API
-
 #some libraries are used from python
 synapseclient &lt;- import('synapseclient')
 synapseutils &lt;- import('synapseutils') 
-
 #Constants
 #File locations and directories
 DATADIRECTORY &lt;- &quot;../Data/&quot;
-
 SYNLOGIN &lt;- synapseclient$login() #generate synology login token</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2VsY29tZSwgUm9uYWxkIEJ1aWUhXG4ifQ== -->
+<pre><code>Welcome, Ronald Buie!</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -209,47 +208,258 @@ SYNLOGIN &lt;- synapseclient$login() #generate synology login token</code></pre>
 <p>The following functions for working with our data are constructed and loaded here:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3VzdG9tLmNvdW50ZXIgPC0gZnVuY3Rpb24oVk9MLCBTSUQsIERFU0MsIFVTRVJTLCBERikge1xuICAjY29uc3RydWN0IGFuIGVtcHR5IGRhdGFmcmFtZSBtZWV0aW5nIHNwZWNpZmljYXRpb25zXG4gIHRvRXhwb3J0IDwtIGRhdGEuZnJhbWUodm9sdW1lID0gY2hhcmFjdGVyKCksXG4gICAgICAgICAgICAgICAgICAgICAgICAgc3luSUQgPSBjaGFyYWN0ZXIoKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbiA9IGNoYXJhY3RlcigpLFxuICAgICAgICAgICAgICAgICAgICAgICAgIHVzZXJDb3VudCA9IG51bWVyaWMoKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICB1bmlxdWVPYnMgPSBudW1lcmljKCkpXG4gIGlmKG5yb3coREYpID4gMCkge1xuICAgIGZvciAoaSBpbiAxOm5jb2woREYpKSB7XG4gICAgICB0b0V4cG9ydFtpLF0gPC0gYyhWT0wsIFxuICAgICAgICAgICAgICAgICAgICAgICAgU0lELFxuICAgICAgICAgICAgICAgICAgICAgICAgREVTQyxcbiAgICAgICAgICAgICAgICAgICAgICAgIG5yb3codW5pcXVlKERGWyxVU0VSU10pKSxcbiAgICAgICAgICAgICAgICAgICAgICAgIHN1bSh1bmlxdWUoREYpKSlcbiAgICB9XG4gIH1cbiAgcmV0dXJuKHRvRXhwb3J0KVxufVxuYGBgIn0= -->
+<pre class="r"><code>custom.counter &lt;- function(VOL, SID, DESC, USERS, DF) {
+  #construct an empty dataframe meeting specifications
+  toExport &lt;- data.frame(volume = character(),
+                         synID = character(),
+                         description = character(),
+                         userCount = numeric(),
+                         uniqueObs = numeric())
+  if(nrow(DF) &gt; 0) {
+    for (i in 1:ncol(DF)) {
+      toExport[i,] &lt;- c(VOL, 
+                        SID,
+                        DESC,
+                        nrow(unique(DF[,USERS])),
+                        sum(unique(DF)))
+    }
+  }
+  return(toExport)
+}</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="extraction-from-synapse" class="section level1">
 <h1>Extraction from Synapse</h1>
-<p>The BRIGHTEN repository was loaded into a local project directory</p>
+<p>The BRIGHTEN repository was loaded into a local project directory and a variable list generated for each file.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jdGhlcmUgaXMgYW4gZXJyb3Igd2hlbiB0cnlpbmcgdG8gcHVsbCB0aGUgZnVsbCByZXBvc2l0b3J5LCBhbmQgdGhpcyBlcnJvciBpcyByZXBlYXRlZCB3aGVuIHRyeWluZyB0byBwdWxsIGp1c3QgdGhlIFYxIGRpcmVjdG9yeSBhbmQgaXRzIHN1YmRpcmVjdG9yaWVzLlxuXG4jc3luYXBzZXV0aWxzJHN5bmNGcm9tU3luYXBzZShTWU5MT0dJTiwgZW50aXR5ID0gXCJzeW45OTUyMTMwXCIsIHBhdGggPSBwYXN0ZShEQVRBRElSRUNUT1JZLFwib3JpZ2luYWwvVjEvXCIsIHNlcCA9IFwiXCIpIClcblxuVjJJbmZvcm1hdGlvbiA8LSBzeW5hcHNldXRpbHMkc3luY0Zyb21TeW5hcHNlKFNZTkxPR0lOLCBlbnRpdHkgPSBcInN5bjk5NTIxMjlcIiwgcGF0aCA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMi9cIiwgc2VwID0gXCJcIikgKVxuIFxuXG5cbmBgYCJ9 -->
-<pre class="r"><code>
-#there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories.
-
-#synapseutils$syncFromSynapse(SYNLOGIN, entity = &quot;syn9952130&quot;, path = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;) )
-
-V2Information &lt;- synapseutils$syncFromSynapse(SYNLOGIN, entity = &quot;syn9952129&quot;, path = paste(DATADIRECTORY,&quot;original/V2/&quot;, sep = &quot;&quot;) )
- 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHNpbXBsZS5jb250ZW50Lmxpc3RpbmcoXCJWMVwiLCBWMWFJbmZvcm1hdGlvbilcblxuYGBgIn0= -->
+<pre class="r"><code>FileContents &lt;- simple.content.listing(&quot;V1&quot;, V1aInformation)
 </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDJcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDNcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDRcblsxXSBcInRlc3R0c3ZcIlxuIn0= -->
+<pre><code>[1] 1
+[1] &quot;testtsv&quot;
+[1] 2
+[1] &quot;testtsv&quot;
+[1] 3
+[1] &quot;testtsv&quot;
+[1] 4
+[1] &quot;testtsv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHNpbXBsZS5jb250ZW50Lmxpc3RpbmcoXCJWMVwiLCBWMWFJbmZvcm1hdGlvbilcbmBgYCJ9 -->
+<pre class="r"><code>FileContents &lt;- simple.content.listing(&quot;V1&quot;, V1aInformation)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDJcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDNcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDRcblsxXSBcInRlc3R0c3ZcIlxuIn0= -->
+<pre><code>[1] 1
+[1] &quot;testtsv&quot;
+[1] 2
+[1] &quot;testtsv&quot;
+[1] 3
+[1] &quot;testtsv&quot;
+[1] 4
+[1] &quot;testtsv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHJiaW5kKEZpbGVDb250ZW50cywgc2ltcGxlLmNvbnRlbnQubGlzdGluZyhcIlYxXCIsIFYxYkluZm9ybWF0aW9uKSlcbmBgYCJ9 -->
+<pre class="r"><code>FileContents &lt;- rbind(FileContents, simple.content.listing(&quot;V1&quot;, V1bInformation))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDJcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDNcblsxXSBcInRlc3R4bHNcIlxuWzFdIDRcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDVcblsxXSBcInRlc3R4bHNcIlxuWzFdIDZcblsxXSBcInRlc3R4bHNcIlxuWzFdIDdcblsxXSBcInRlc3R4bHNcIlxuWzFdIDhcblsxXSBcInRlc3R4bHNcIlxuWzFdIDlcblsxXSBcInRlc3R4bHNcIlxuWzFdIDEwXG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAxMVxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMTJcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDEzXG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAxNFxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMTVcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDE2XG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAxN1xuWzFdIFwidGVzdHhsc1wiXG5bMV0gMThcblsxXSBcInRlc3R4bHNcIlxuWzFdIDE5XG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAyMFxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMjFcblsxXSBcInRlc3R4bHNcIlxuIn0= -->
+<pre><code>[1] 1
+[1] &quot;testcsv&quot;
+[1] 2
+[1] &quot;testcsv&quot;
+[1] 3
+[1] &quot;testxls&quot;
+[1] 4
+[1] &quot;testcsv&quot;
+[1] 5
+[1] &quot;testxls&quot;
+[1] 6
+[1] &quot;testxls&quot;
+[1] 7
+[1] &quot;testxls&quot;
+[1] 8
+[1] &quot;testxls&quot;
+[1] 9
+[1] &quot;testxls&quot;
+[1] 10
+[1] &quot;testxls&quot;
+[1] 11
+[1] &quot;testxls&quot;
+[1] 12
+[1] &quot;testcsv&quot;
+[1] 13
+[1] &quot;testcsv&quot;
+[1] 14
+[1] &quot;testxls&quot;
+[1] 15
+[1] &quot;testcsv&quot;
+[1] 16
+[1] &quot;testxls&quot;
+[1] 17
+[1] &quot;testxls&quot;
+[1] 18
+[1] &quot;testxls&quot;
+[1] 19
+[1] &quot;testxls&quot;
+[1] 20
+[1] &quot;testxls&quot;
+[1] 21
+[1] &quot;testxls&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHNpbXBsZS5jb250ZW50Lmxpc3RpbmcoXCJWMVwiLCBWMWFJbmZvcm1hdGlvbilcbmBgYCJ9 -->
+<pre class="r"><code>FileContents &lt;- simple.content.listing(&quot;V1&quot;, V1aInformation)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDJcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDNcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDRcblsxXSBcInRlc3R0c3ZcIlxuIn0= -->
+<pre><code>[1] 1
+[1] &quot;testtsv&quot;
+[1] 2
+[1] &quot;testtsv&quot;
+[1] 3
+[1] &quot;testtsv&quot;
+[1] 4
+[1] &quot;testtsv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHJiaW5kKEZpbGVDb250ZW50cywgc2ltcGxlLmNvbnRlbnQubGlzdGluZyhcIlYxXCIsIFYxYkluZm9ybWF0aW9uKSlcbmBgYCJ9 -->
+<pre class="r"><code>FileContents &lt;- rbind(FileContents, simple.content.listing(&quot;V1&quot;, V1bInformation))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDJcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDNcblsxXSBcInRlc3R4bHNcIlxuWzFdIDRcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDVcblsxXSBcInRlc3R4bHNcIlxuWzFdIDZcblsxXSBcInRlc3R4bHNcIlxuWzFdIDdcblsxXSBcInRlc3R4bHNcIlxuWzFdIDhcblsxXSBcInRlc3R4bHNcIlxuWzFdIDlcblsxXSBcInRlc3R4bHNcIlxuWzFdIDEwXG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAxMVxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMTJcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDEzXG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAxNFxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMTVcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDE2XG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAxN1xuWzFdIFwidGVzdHhsc1wiXG5bMV0gMThcblsxXSBcInRlc3R4bHNcIlxuWzFdIDE5XG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAyMFxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMjFcblsxXSBcInRlc3R4bHNcIlxuIn0= -->
+<pre><code>[1] 1
+[1] &quot;testcsv&quot;
+[1] 2
+[1] &quot;testcsv&quot;
+[1] 3
+[1] &quot;testxls&quot;
+[1] 4
+[1] &quot;testcsv&quot;
+[1] 5
+[1] &quot;testxls&quot;
+[1] 6
+[1] &quot;testxls&quot;
+[1] 7
+[1] &quot;testxls&quot;
+[1] 8
+[1] &quot;testxls&quot;
+[1] 9
+[1] &quot;testxls&quot;
+[1] 10
+[1] &quot;testxls&quot;
+[1] 11
+[1] &quot;testxls&quot;
+[1] 12
+[1] &quot;testcsv&quot;
+[1] 13
+[1] &quot;testcsv&quot;
+[1] 14
+[1] &quot;testxls&quot;
+[1] 15
+[1] &quot;testcsv&quot;
+[1] 16
+[1] &quot;testxls&quot;
+[1] 17
+[1] &quot;testxls&quot;
+[1] 18
+[1] &quot;testxls&quot;
+[1] 19
+[1] &quot;testxls&quot;
+[1] 20
+[1] &quot;testxls&quot;
+[1] 21
+[1] &quot;testxls&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRmlsZUNvbnRlbnRzIDwtIHJiaW5kKEZpbGVDb250ZW50cywgc2ltcGxlLmNvbnRlbnQubGlzdGluZyhcIlYyXCIsIFYySW5mb3JtYXRpb24pKVxuYGBgIn0= -->
+<pre class="r"><code>FileContents &lt;- rbind(FileContents, simple.content.listing(&quot;V2&quot;, V2Information))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDFcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDJcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDNcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDRcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDVcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDZcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDdcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDhcblsxXSBcInRlc3R0c3ZcIlxuWzFdIDlcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDEwXG5bMV0gXCJ0ZXN0eGxzXCJcblsxXSAxMVxuWzFdIFwidGVzdHhsc1wiXG5bMV0gMTJcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDEzXG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAxNFxuWzFdIFwidGVzdHRzdlwiXG4ifQ== -->
+<pre><code>[1] 1
+[1] &quot;testtsv&quot;
+[1] 2
+[1] &quot;testtsv&quot;
+[1] 3
+[1] &quot;testtsv&quot;
+[1] 4
+[1] &quot;testtsv&quot;
+[1] 5
+[1] &quot;testtsv&quot;
+[1] 6
+[1] &quot;testtsv&quot;
+[1] 7
+[1] &quot;testtsv&quot;
+[1] 8
+[1] &quot;testtsv&quot;
+[1] 9
+[1] &quot;testcsv&quot;
+[1] 10
+[1] &quot;testxls&quot;
+[1] 11
+[1] &quot;testxls&quot;
+[1] 12
+[1] &quot;testcsv&quot;
+[1] 13
+[1] &quot;testcsv&quot;
+[1] 14
+[1] &quot;testtsv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQnVtcGVkIGNvbHVtbiA1NiB0byB0eXBlIGNoYXJhY3RlciBvbiBkYXRhIHJvdyA3MzgsIGZpZWxkIGNvbnRhaW5zICdueScuIENvZXJjaW5nIHByZXZpb3VzbHkgcmVhZCB2YWx1ZXMgaW4gdGhpcyBjb2x1bW4gZnJvbSBsb2dpY2FsLCBpbnRlZ2VyIG9yIG51bWVyaWMgYmFjayB0byBjaGFyYWN0ZXIgd2hpY2ggbWF5IG5vdCBiZSBsb3NzbGVzczsgZS5nLiwgaWYgJzAwJyBhbmQgJzAwMCcgb2NjdXJyZWQgYmVmb3JlIHRoZXkgd2lsbCBub3cgYmUganVzdCAnMCcsIGFuZCB0aGVyZSBtYXkgYmUgaW5jb25zaXN0ZW5jaWVzIHdpdGggdHJlYXRtZW50IG9mICcsLCcgYW5kICcsTkEsJyB0b28gKGlmIHRoZXkgb2NjdXJyZWQgaW4gdGhpcyBjb2x1bW4gYmVmb3JlIHRoZSBidW1wKS4gSWYgdGhpcyBtYXR0ZXJzIHBsZWFzZSByZXJ1biBhbmQgc2V0ICdjb2xDbGFzc2VzJyB0byAnY2hhcmFjdGVyJyBmb3IgdGhpcyBjb2x1bW4uIFBsZWFzZSBub3RlIHRoYXQgY29sdW1uIHR5cGUgZGV0ZWN0aW9uIHVzZXMgYSBzYW1wbGUgb2YgMSwwMDAgcm93cyAoMTAwIHJvd3MgYXQgMTAgcG9pbnRzKSBzbyBob3BlZnVsbHkgdGhpcyBtZXNzYWdlIHNob3VsZCBiZSB2ZXJ5IHJhcmUuIElmIHJlcG9ydGluZyB0byBkYXRhdGFibGUtaGVscCwgcGxlYXNlIHJlcnVuIGFuZCBpbmNsdWRlIHRoZSBvdXRwdXQgZnJvbSB2ZXJib3NlPVRSVUUuXG4ifQ== -->
+<pre><code>Bumped column 56 to type character on data row 738, field contains 'ny'. Coercing previously read values in this column from logical, integer or numeric back to character which may not be lossless; e.g., if '00' and '000' occurred before they will now be just '0', and there may be inconsistencies with treatment of ',,' and ',NA,' too (if they occurred in this column before the bump). If this matters please rerun and set 'colClasses' to 'character' for this column. Please note that column type detection uses a sample of 1,000 rows (100 rows at 10 points) so hopefully this message should be very rare. If reporting to datatable-help, please rerun and include the output from verbose=TRUE.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDE1XG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAxNlxuWzFdIFwidGVzdGNzdlwiXG5bMV0gMTdcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDE4XG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAxOVxuWzFdIFwidGVzdGNzdlwiXG5bMV0gMjBcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDIxXG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAyMlxuWzFdIFwidGVzdGNzdlwiXG5bMV0gMjNcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDI0XG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAyNVxuWzFdIFwidGVzdGNzdlwiXG5bMV0gMjZcblsxXSBcInRlc3Rjc3ZcIlxuWzFdIDI3XG5bMV0gXCJ0ZXN0Y3N2XCJcblsxXSAyOFxuWzFdIFwidGVzdGNzdlwiXG5bMV0gMjlcblsxXSBcInRlc3Rjc3ZcIlxuIn0= -->
+<pre><code>[1] 15
+[1] &quot;testcsv&quot;
+[1] 16
+[1] &quot;testcsv&quot;
+[1] 17
+[1] &quot;testcsv&quot;
+[1] 18
+[1] &quot;testcsv&quot;
+[1] 19
+[1] &quot;testcsv&quot;
+[1] 20
+[1] &quot;testcsv&quot;
+[1] 21
+[1] &quot;testcsv&quot;
+[1] 22
+[1] &quot;testcsv&quot;
+[1] 23
+[1] &quot;testcsv&quot;
+[1] 24
+[1] &quot;testcsv&quot;
+[1] 25
+[1] &quot;testcsv&quot;
+[1] 26
+[1] &quot;testcsv&quot;
+[1] 27
+[1] &quot;testcsv&quot;
+[1] 28
+[1] &quot;testcsv&quot;
+[1] 29
+[1] &quot;testcsv&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>The above code may not be functional for the V1 data set (as of this writing, 3/28/2018). If so, the below chunk can be used to pull the specific files requested, but does not maintain the V1 directory structure.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5WMWEgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyMzY1NDdcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWIgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyMzY1MzhcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWMgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyMzY1MzlcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWQgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyMzY1NDBcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWUgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAwODI4NjNcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWYgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0ODNcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWcgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0ODRcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWggPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0ODdcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWkgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0ODhcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWogPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0ODlcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWsgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0OTBcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMWwgPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0OTFcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMW0gPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0OTNcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5WMW4gPC0gU1lOTE9HSU4kZ2V0KFwic3luMTAyNTA0OTRcIiwgZG93bmxvYWRMb2NhdGlvbiA9IHBhc3RlKERBVEFESVJFQ1RPUlksXCJvcmlnaW5hbC9WMS9cIiwgc2VwID0gXCJcIikpXG5cblxuYGBgIn0= -->
-<pre class="r"><code>
-V1a &lt;- SYNLOGIN$get(&quot;syn10236547&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1b &lt;- SYNLOGIN$get(&quot;syn10236538&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1c &lt;- SYNLOGIN$get(&quot;syn10236539&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1d &lt;- SYNLOGIN$get(&quot;syn10236540&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1e &lt;- SYNLOGIN$get(&quot;syn10082863&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1f &lt;- SYNLOGIN$get(&quot;syn10250483&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1g &lt;- SYNLOGIN$get(&quot;syn10250484&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1h &lt;- SYNLOGIN$get(&quot;syn10250487&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1i &lt;- SYNLOGIN$get(&quot;syn10250488&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1j &lt;- SYNLOGIN$get(&quot;syn10250489&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1k &lt;- SYNLOGIN$get(&quot;syn10250490&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1l &lt;- SYNLOGIN$get(&quot;syn10250491&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1m &lt;- SYNLOGIN$get(&quot;syn10250493&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
-V1n &lt;- SYNLOGIN$get(&quot;syn10250494&quot;, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yKGkgaW4gcmVxdWlyZWRWMUlEcykge1xuICB0ZW1wIDwtIFNZTkxPR0lOJGdldChpLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSxcIm9yaWdpbmFsL1YxL1wiLCBzZXAgPSBcIlwiKSlcbiAgRmlsZUluZm9ybWF0aW9uW2ksXSA8LSBjKFwidjFcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIGksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICB0ZW1wJGZpbGVzLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgTkEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBOQSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIE5BKVxufVxuXG5gYGAifQ== -->
+<pre class="r"><code>for(i in requiredV1IDs) {
+  temp &lt;- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,&quot;original/V1/&quot;, sep = &quot;&quot;))
+  FileInformation[i,] &lt;- c(&quot;v1&quot;,
+                           i,
+                           temp$files,
+                           NA,
+                           NA,
+                           NA)
+}
 </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiaW52YWxpZCBmYWN0b3IgbGV2ZWwsIE5BIGdlbmVyYXRlZGludmFsaWQgZmFjdG9yIGxldmVsLCBOQSBnZW5lcmF0ZWRpbnZhbGlkIGZhY3RvciBsZXZlbCwgTkEgZ2VuZXJhdGVkaW52YWxpZCBmYWN0b3IgbGV2ZWwsIE5BIGdlbmVyYXRlZGludmFsaWQgZmFjdG9yIGxldmVsLCBOQSBnZW5lcmF0ZWRpbnZhbGlkIGZhY3RvciBsZXZlbCwgTkEgZ2VuZXJhdGVkaW52YWxpZCBmYWN0b3IgbGV2ZWwsIE5BIGdlbmVyYXRlZGludmFsaWQgZmFjdG9yIGxldmVsLCBOQSBnZW5lcmF0ZWRpbnZhbGlkIGZhY3RvciBsZXZlbCwgTkEgZ2VuZXJhdGVkXG4ifQ== -->
+<pre><code>invalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generatedinvalid factor level, NA generated</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTkFcbiJ9 -->
+<pre><code>NA</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Summary data are reported for the following files</p>
@@ -272,9 +482,68 @@ V1n &lt;- SYNLOGIN$get(&quot;syn10250494&quot;, downloadLocation = paste(DATADIR
 <td>brighten_v1_passive_features.tsv</td>
 <td>syn10236538</td>
 </tr>
+<tr class="odd">
+<td>v1</td>
+<td>brighten_v1_phq2_scores.tsv</td>
+<td>Syn10236539</td>
+</tr>
+<tr class="even">
+<td>V1</td>
+<td>brighten_v1_phq9_scores.tsv</td>
+<td>Syn10236540</td>
+</tr>
+<tr class="odd">
+<td>v1</td>
+<td>005_allses_set.csv</td>
+<td>Syn10082863</td>
+</tr>
+<tr class="even">
+<td>v1</td>
+<td>apps_399.xls</td>
+<td>Syn10250483</td>
+</tr>
+<tr class="odd">
+<td>v1</td>
+<td>appsatisfaction_408.xls</td>
+<td>Syn10250484</td>
+</tr>
+<tr class="even">
+<td>v1</td>
+<td>energylevels_404.xls</td>
+<td>Syn10250487</td>
+</tr>
+<tr class="odd">
+<td>v1</td>
+<td>gad7_402.xls</td>
+<td>Syn10250488</td>
+</tr>
+<tr class="even">
+<td>v1</td>
+<td>healthapps_405.xls</td>
+<td>Syn10250489</td>
+</tr>
+<tr class="odd">
+<td>v1</td>
+<td>mentalhealthservices_400.xls</td>
+<td>Syn10250490</td>
+</tr>
+<tr class="even">
+<td>v1</td>
+<td>moodassessment_407.xls</td>
+<td>Syn10250491</td>
+</tr>
+<tr class="odd">
+<td>v1</td>
+<td>qualityoflife_401.xls</td>
+<td>Syn10250493</td>
+</tr>
+<tr class="even">
+<td>v1</td>
+<td>sleep_406.xls</td>
+<td>Syn10250494</td>
+</tr>
 </tbody>
 </table>
-<p>Syn10236538 Syn10236539 Syn10236540 Syn10082863 Syn10082863 Syn10250483 Syn10250484 Syn10236547 Syn10250487 Syn10250488 Syn10250489 Syn10250490 Syn10250491 Syn10250493 Syn10250494</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3luMTAyMzY1NDcgPC0gcmVhZC50YWJsZShwYXN0ZShWMWEkY2FjaGVEaXIsIFwiL1wiLFYxYSRmaWxlcywgc2VwID1cIlwiKSwgaGVhZGVyID0gVFJVRSlcbnN5bjEwMjM2NTM4IDwtIHJlYWQudGFibGUocGFzdGUoVjFiJGNhY2hlRGlyLCBcIi9cIixWMWIkZmlsZXMsIHNlcCA9XCJcIiksIGhlYWRlciA9IFRSVUUpXG5gYGAifQ== -->
@@ -284,67 +553,9 @@ syn10236538 &lt;- read.table(paste(V1b$cacheDir, &quot;/&quot;,V1b$files, sep =&
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGVzdCA8LSBjdXN0b20uc3VtbWFyaXplcihzeW4xMDIzNjUzOCwsIFwic3luMTAyMzY1MzhcIilcblxuYGBgIn0= -->
-<pre class="r"><code>test &lt;- custom.summarizer(syn10236538,, &quot;syn10236538&quot;)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuXG4ifQ== -->
-<pre><code>argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGVzdCA8LSBjdXN0b20uc3VtbWFyaXplcihzeW4xMDIzNjUzOCwsIFwic3luMTAyMzY1MzhcIilcbmBgYCJ9 -->
-<pre class="r"><code>test &lt;- custom.summarizer(syn10236538,, &quot;syn10236538&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuXG4ifQ== -->
-<pre><code>argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGVzdCA8LSByYmluZCh0ZXN0LCBjdXN0b20uc3VtbWFyaXplcihzeW4xMDIzNjU0NywsIFwic3luMTAyMzY1NDdcIikpXG5gYGAifQ== -->
-<pre class="r"><code>test &lt;- rbind(test, custom.summarizer(syn10236547,, &quot;syn10236547&quot;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BQ2FsbGluZyB2YXIoeCkgb24gYSBmYWN0b3IgeCBpcyBkZXByZWNhdGVkIGFuZCB3aWxsIGJlY29tZSBhbiBlcnJvci5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuXG4ifQ== -->
-<pre><code>argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.argument is not numeric or logical: returning NACalling var(x) on a factor x is deprecated and will become an error.
-  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIjEgLSBEZXNjcmlwdGlvbiBvZiBJbml0aWFsbHkgQXZhaWxhYmxlIERhdGEiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQojIFN1bW1hcnkNCg0KQSByZXBvcnQgb2YgZGF0YSBxdWFsaXR5IG5lY2Vzc2FyeSBmb3IgcGxhbmluZyBvZiBFVEwgYWN0aXZpdGllcyBmb3IgZ2VuZXJhdGlvbiBvZiBhIGZpbmFsIGFuZCBwdWJsaWMgcmVwb3NpdG9yeSBvZiBCUklHSFRFTiByZXNlcmFjaCBkYXRhLiBPcmlnaW5hbCBmaWxlcywgdGhlaXIgdmVyc2lvbiwgc3luYXBzZSBJRCwgbmFtZSwgYW5kIGNvbnRhaW5lZCB2YXJpYWJsZXMgYXJlIGRlc2NyaWJlZCBpbiBwYXJ0IDEuIEluIHBhcnQgMiBhbGwgdmFyaWFibGVzIGFyZSBkZXNjcmliZWQgYnkgdGhlIHN5bmFwc2UgSUQgb2YgdGhpZXIgY29udGFpbmluZyBmaWxlLCBkYXRhIHR5cGUsIGZyZXF1ZW5jeSBvZiBzdWJqZWN0cywgZnJlcXVlbmN5IG9mIHRhc2tzLCBtZWFuLCBhbmQgc3RhbmRhcmQgZGV2aWF0aW9uDQoNCiMgRW52aXJvbm1lbnQNCg0KUHl0aG9uIGFuZCB0aGUgU3luYXBzZSBweXRob24gbGlicmFyeSB3aWxsIG5lZWQgdG8gYmUgc2V0dXAgaW4gdGhlIGVudmlyb25tZW50LiBPdGhlciB2YXJpYWJsZXMgYW5kIFIgbGlicmFyaWVzIGFyZSBmdWxseSBjb25maWd1cmVkIGhlcmUuIEVudGVyIHlvdXIgdXNlcm5hbWUgYW5kIHBhc3N3b3JkIGZvciBTeW5hcHNlLm9yZy4NCg0KYGBge3IgU2V0dGluZyBFbnZpcm9ubWVudH0NCiNOZWVkZWQgTGlicmFyaWVzIA0KIyBTZXR1cCBsb29wIHRvIGNoZWNrIGluIGxpYnJhcnkgaXMgaW5zdGFsbGVkLi4uLg0KI2xpYnJhcnkoc3luYXBzZXIpICNTeW5hcHNlIEFQSQ0KbGlicmFyeShyZXRpY3VsYXRlKSAjUHl0aG9uIGludGVncmF0aW9uIGludG8gUiBzdHVkaW8NCg0KDQojbGlicmFyeShQeXRob25JblIpICNyZXF1aXJlZCB0byB1c2Ugc29tZSBvZiBzeXNhcHNlIEFQSQ0KDQojc29tZSBsaWJyYXJpZXMgYXJlIHVzZWQgZnJvbSBweXRob24NCnN5bmFwc2VjbGllbnQgPC0gaW1wb3J0KCdzeW5hcHNlY2xpZW50JykNCnN5bmFwc2V1dGlscyA8LSBpbXBvcnQoJ3N5bmFwc2V1dGlscycpIA0KDQojQ29uc3RhbnRzDQojRmlsZSBsb2NhdGlvbnMgYW5kIGRpcmVjdG9yaWVzDQpEQVRBRElSRUNUT1JZIDwtICIuLi9EYXRhLyINCg0KU1lOTE9HSU4gPC0gc3luYXBzZWNsaWVudCRsb2dpbigpICNnZW5lcmF0ZSBzeW5vbG9neSBsb2dpbiB0b2tlbg0KYGBgDQoNCiMgTG9hZGluZyBDdXN0b20gRnVuY3Rpb25zDQoNClRoZSBmb2xsb3dpbmcgZnVuY3Rpb25zIGZvciB3b3JraW5nIHdpdGggb3VyIGRhdGEgYXJlIGNvbnN0cnVjdGVkIGFuZCBsb2FkZWQgaGVyZToNCg0KYGBge3J9DQoNCmBgYA0KDQojIEV4dHJhY3Rpb24gZnJvbSBTeW5hcHNlDQoNClRoZSBCUklHSFRFTiByZXBvc2l0b3J5IHdhcyBsb2FkZWQgaW50byBhIGxvY2FsIHByb2plY3QgZGlyZWN0b3J5DQoNCmBgYHtyfQ0KDQojdGhlcmUgaXMgYW4gZXJyb3Igd2hlbiB0cnlpbmcgdG8gcHVsbCB0aGUgZnVsbCByZXBvc2l0b3J5LCBhbmQgdGhpcyBlcnJvciBpcyByZXBlYXRlZCB3aGVuIHRyeWluZyB0byBwdWxsIGp1c3QgdGhlIFYxIGRpcmVjdG9yeSBhbmQgaXRzIHN1YmRpcmVjdG9yaWVzLg0KDQojc3luYXBzZXV0aWxzJHN5bmNGcm9tU3luYXBzZShTWU5MT0dJTiwgZW50aXR5ID0gInN5bjk5NTIxMzAiLCBwYXRoID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpICkNCg0KVjJJbmZvcm1hdGlvbiA8LSBzeW5hcHNldXRpbHMkc3luY0Zyb21TeW5hcHNlKFNZTkxPR0lOLCBlbnRpdHkgPSAic3luOTk1MjEyOSIsIHBhdGggPSBwYXN0ZShEQVRBRElSRUNUT1JZLCJvcmlnaW5hbC9WMi8iLCBzZXAgPSAiIikgKQ0KIA0KDQoNCmBgYA0KDQpUaGUgYWJvdmUgY29kZSBtYXkgbm90IGJlIGZ1bmN0aW9uYWwgZm9yIHRoZSBWMSBkYXRhIHNldCAoYXMgb2YgdGhpcyB3cml0aW5nLCAzLzI4LzIwMTgpLiBJZiBzbywgdGhlIGJlbG93IGNodW5rIGNhbiBiZSB1c2VkIHRvIHB1bGwgdGhlIHNwZWNpZmljIGZpbGVzIHJlcXVlc3RlZCwgYnV0IGRvZXMgbm90IG1haW50YWluIHRoZSBWMSBkaXJlY3Rvcnkgc3RydWN0dXJlLg0KDQpgYGB7cn0NCg0KVjFhIDwtIFNZTkxPR0lOJGdldCgic3luMTAyMzY1NDciLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFiIDwtIFNZTkxPR0lOJGdldCgic3luMTAyMzY1MzgiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFjIDwtIFNZTkxPR0lOJGdldCgic3luMTAyMzY1MzkiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFkIDwtIFNZTkxPR0lOJGdldCgic3luMTAyMzY1NDAiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFlIDwtIFNZTkxPR0lOJGdldCgic3luMTAwODI4NjMiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFmIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0ODMiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFnIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0ODQiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFoIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0ODciLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFpIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0ODgiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFqIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0ODkiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFrIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0OTAiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFsIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0OTEiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFtIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0OTMiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KVjFuIDwtIFNZTkxPR0lOJGdldCgic3luMTAyNTA0OTQiLCBkb3dubG9hZExvY2F0aW9uID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpKQ0KDQoNCmBgYA0KDQpTdW1tYXJ5IGRhdGEgYXJlIHJlcG9ydGVkIGZvciB0aGUgZm9sbG93aW5nIGZpbGVzDQoNClZvbHVtZSB8RmlsZSBOYW1lICAgICAgICAgICAgICB8IFN5bklEICAgICAgICANCi0tLS0tLS18LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tLQ0KVjEgICAgIHxgciBWMWEkZmlsZXNgICAgICAgICAgIHwgc3luMTAyMzY1NDcNClYxICAgICB8YHIgVjFiJGZpbGVzYCAgICAgICAgICB8IHN5bjEwMjM2NTM4DQpTeW4xMDIzNjUzOA0KU3luMTAyMzY1MzkNClN5bjEwMjM2NTQwDQpTeW4xMDA4Mjg2Mw0KU3luMTAwODI4NjMNClN5bjEwMjUwNDgzDQpTeW4xMDI1MDQ4NA0KU3luMTAyMzY1NDcNClN5bjEwMjUwNDg3DQpTeW4xMDI1MDQ4OA0KU3luMTAyNTA0ODkNClN5bjEwMjUwNDkwDQpTeW4xMDI1MDQ5MQ0KU3luMTAyNTA0OTMNClN5bjEwMjUwNDk0DQoNCmBgYHtyfQ0Kc3luMTAyMzY1NDcgPC0gcmVhZC50YWJsZShwYXN0ZShWMWEkY2FjaGVEaXIsICIvIixWMWEkZmlsZXMsIHNlcCA9IiIpLCBoZWFkZXIgPSBUUlVFKQ0Kc3luMTAyMzY1MzggPC0gcmVhZC50YWJsZShwYXN0ZShWMWIkY2FjaGVEaXIsICIvIixWMWIkZmlsZXMsIHNlcCA9IiIpLCBoZWFkZXIgPSBUUlVFKQ0KYGBgDQoNCmBgYHtyfQ0KbGlicmFyeShrbml0cikNCg0KDQpzdW1tYXJ5KHN5bjEwMjM2NTQ3KQ0KDQpjdXN0b20uc3VtbWFyaXplciA8LSBmdW5jdGlvbihERiwgdm9sdW1lID0gIlYxIiwgU0lEKSB7DQogICNjb25zdHJ1Y3QgYW4gZW1wdHkgZGF0YWZyYW1lIG1lZXRpbmcgc3BlY2lmaWNhdGlvbnMNCiAgdG9FeHBvcnQgPC0gZGF0YS5mcmFtZShWb2x1bWUgPSBjaGFyYWN0ZXIoKSwgDQogICAgICAgICAgICAgICAgICAgICAgICAgU3luYXBzZUlEID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgVXNlckNvdW50ID0gbnVtZXJpYygpLA0KICAgICAgICAgICAgICAgICAgICAgICAgIFVuaXF1ZU9icyA9IG51bWVyaWMoKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICBPYnNlcnZhdGlvbiA9IGNoYXJhY3RlcigpLA0KICAgICAgICAgICAgICAgICAgICAgICAgIG1lYW4gPSBudW1lcmljKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgU0QgPSBudW1lcmljKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgTWlzc2luZyA9IG51bWVyaWMoKSwgDQogICAgICAgICAgICAgICAgICAgICAgICAgc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFKQ0KICBpZihucm93KERGKSA+IDApIHsNCiAgICBmb3IgKGkgaW4gMTpuY29sKERGKSkgew0KICAgICAgdG9FeHBvcnRbaSxdIDwtIGModm9sdW1lLCANCiAgICAgICAgICAgICAgICAgICAgICAgIFNJRCwgDQogICAgICAgICAgICAgICAgICAgICAgICBsZW5ndGgodW5pcXVlKERGWywidXNlcl9pZCJdKSksIA0KICAgICAgICAgICAgICAgICAgICAgICAgbnJvdyh1bmlxdWUoREYpKSwgDQogICAgICAgICAgICAgICAgICAgICAgICBuYW1lcyhERilbaV0sIA0KICAgICAgICAgICAgICAgICAgICAgICAgbWVhbihERlssaV0sIG5hLnJtID0gVFJVRSksIA0KICAgICAgICAgICAgICAgICAgICAgICAgc2QoREZbLGldLCBuYS5ybSA9IFRSVUUpLCANCiAgICAgICAgICAgICAgICAgICAgICAgIHN1bShpcy5uYShERlssaV0pKSkNCiAgICB9DQogIH0NCiAgcmV0dXJuKHRvRXhwb3J0KQ0KICAgIA0KfQ0KDQp0ZXN0IDwtIGN1c3RvbS5zdW1tYXJpemVyKHN5bjEwMjM2NTM4LCwgInN5bjEwMjM2NTM4IikNCnRlc3QgPC0gcmJpbmQodGVzdCwgY3VzdG9tLnN1bW1hcml6ZXIoc3luMTAyMzY1NDcsLCAic3luMTAyMzY1NDciKSkNCg0KYGBgDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIjEgLSBEZXNjcmlwdGlvbiBvZiBJbml0aWFsbHkgQXZhaWxhYmxlIERhdGEiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQojIFN1bW1hcnkNCg0KQSByZXBvcnQgb2YgZGF0YSBxdWFsaXR5IG5lY2Vzc2FyeSBmb3IgcGxhbmluZyBvZiBFVEwgYWN0aXZpdGllcyBmb3IgZ2VuZXJhdGlvbiBvZiBhIGZpbmFsIGFuZCBwdWJsaWMgcmVwb3NpdG9yeSBvZiBCUklHSFRFTiByZXNlcmFjaCBkYXRhLiBPcmlnaW5hbCBmaWxlcywgdGhlaXIgdmVyc2lvbiwgc3luYXBzZSBJRCwgbmFtZSwgYW5kIGNvbnRhaW5lZCB2YXJpYWJsZXMgYXJlIGRlc2NyaWJlZCBpbiBwYXJ0IDEuIEluIHBhcnQgMiBhbGwgdmFyaWFibGVzIGFyZSBkZXNjcmliZWQgYnkgdGhlIHN5bmFwc2UgSUQgb2YgdGhpZXIgY29udGFpbmluZyBmaWxlLCBkYXRhIHR5cGUsIGZyZXF1ZW5jeSBvZiBzdWJqZWN0cywgZnJlcXVlbmN5IG9mIHRhc2tzLCBtZWFuLCBhbmQgc3RhbmRhcmQgZGV2aWF0aW9uDQoNCiMgRW52aXJvbm1lbnQNCg0KUHl0aG9uIGFuZCB0aGUgU3luYXBzZSBweXRob24gbGlicmFyeSB3aWxsIG5lZWQgdG8gYmUgc2V0dXAgaW4gdGhlIGVudmlyb25tZW50LiBPdGhlciB2YXJpYWJsZXMgYW5kIFIgbGlicmFyaWVzIGFyZSBmdWxseSBjb25maWd1cmVkIGhlcmUuIEVudGVyIHlvdXIgdXNlcm5hbWUgYW5kIHBhc3N3b3JkIGZvciBTeW5hcHNlLm9yZy4NCg0KYGBge3IgU2V0dGluZyBFbnZpcm9ubWVudH0NCiNOZWVkZWQgTGlicmFyaWVzIA0KIyBTZXR1cCBsb29wIHRvIGNoZWNrIGluIGxpYnJhcnkgaXMgaW5zdGFsbGVkLi4uLg0KI2xpYnJhcnkoc3luYXBzZXIpICNTeW5hcHNlIEFQSQ0KbGlicmFyeShrbml0cikNCmxpYnJhcnkodG9vbHMpDQpsaWJyYXJ5KHhsc3gpDQpsaWJyYXJ5KHJldGljdWxhdGUpICNQeXRob24gaW50ZWdyYXRpb24gaW50byBSIHN0dWRpbw0KDQoNCiNsaWJyYXJ5KFB5dGhvbkluUikgI3JlcXVpcmVkIHRvIHVzZSBzb21lIG9mIHN5c2Fwc2UgQVBJDQoNCiNzb21lIGxpYnJhcmllcyBhcmUgdXNlZCBmcm9tIHB5dGhvbg0Kc3luYXBzZWNsaWVudCA8LSBpbXBvcnQoJ3N5bmFwc2VjbGllbnQnKQ0Kc3luYXBzZXV0aWxzIDwtIGltcG9ydCgnc3luYXBzZXV0aWxzJykgDQoNCiNDb25zdGFudHMNCiNGaWxlIGxvY2F0aW9ucyBhbmQgZGlyZWN0b3JpZXMNCkRBVEFESVJFQ1RPUlkgPC0gIi4uL0RhdGEvIg0KDQpTWU5MT0dJTiA8LSBzeW5hcHNlY2xpZW50JGxvZ2luKCkgI2dlbmVyYXRlIHN5bm9sb2d5IGxvZ2luIHRva2VuDQpgYGANCg0KIyBMb2FkaW5nIEN1c3RvbSBGdW5jdGlvbnMNCg0KVGhlIGZvbGxvd2luZyBmdW5jdGlvbnMgZm9yIHdvcmtpbmcgd2l0aCBvdXIgZGF0YSBhcmUgY29uc3RydWN0ZWQgYW5kIGxvYWRlZCBoZXJlOg0KDQpgYGB7cn0NCg0KI1BSRSBzdHJpbmcgaWRlbnRpZnlpbmcgdm9sdW1lIGxhYmVsIGNvbnRlbnQsIGFuZCBzeW5hcHNlIGZpbGUgZGVzY3JpcHRpb24gb2JqZWN0IChjYW4gYmUgbGlzdCkNCiNQT1NUIGRhdGEgZnJhbWUgZGVzY3JpYmluZyB0aGUgdmFyaWFibGVzIGluIGVhY2ggZmlsZSBuYW1lZCBpbiB0aGUgc3luYXBzZSBvYmplY3QuDQpzaW1wbGUuY29udGVudC5saXN0aW5nIDwtIGZ1bmN0aW9uKFZPTCwgSU5GTykgew0KICBvdXRwdXQgPC0gZGF0YS5mcmFtZSh2b2x1bWUgPSBjaGFyYWN0ZXIoKSwNCiAgICAgICAgICAgICAgICAgICAgIHN5bklEID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICBmaWxlTmFtZSA9IGNoYXJhY3RlcigpLA0KICAgICAgICAgICAgICAgICAgICAgdmFyaWFibGVzID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICBzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UpDQogICBgJSFpbiVgIDwtIE5lZ2F0ZSgnJWluJScpDQogICAgICAgICAgICAgICAgICAgIA0KICBmb3IoaSBpbiAxOihsZW5ndGgoSU5GTykpKSB7DQogICAgcHJpbnQoaSkNCiAgICBleHRlbnNpb24gPC0gdG9vbHM6OmZpbGVfZXh0KElORk9bW2ldXSRmaWxlcykNCiAgICBpZihleHRlbnNpb24gPT0gInRzdiJ8IGV4dGVuc2lvbiA9PSAidHh0Iikgew0KICAgICAgdGVtcCA8LWFzLmRhdGEuZnJhbWUoZnJlYWQoSU5GT1tbaV1dJHBhdGgpKSAjcmVhZC50YWJsZShJTkZPW1tpXV0kcGF0aCwgc2VwID0gIlx0IiwgIGhlYWRlciA9IFRSVUUpDQogICAgfQ0KICAgIGlmKGV4dGVuc2lvbiA9PSAiY3N2Iikgew0KICAgICAgdGVtcCA8LSByZWFkLmNzdihJTkZPW1tpXV0kcGF0aCwgaGVhZGVyID0gVFJVRSkNCiAgICB9DQogICAgaWYoZXh0ZW5zaW9uID09ICJ4bHMiIHwgZXh0ZW5zaW9uID09ICJ4bHN4Iikgew0KICAgICAgdGVtcCA8LSB4bHN4OjpyZWFkLnhsc3goSU5GT1tbaV1dJHBhdGgsIHNoZWV0SW5kZXggPSAxKQ0KICAgIH0gIA0KICAgIGlmKCFleGlzdHMoInRlbXAiKSkgew0KICAgICAgdGVtcCA8LSAiZmlsZSByZWFkIGVycm9yIg0KICAgIH0NCiAgICANCiAgICBvdXRwdXRbaSxdIDwtIGMoVk9MLA0KICAgICAgICAgICAgICAgICAgICBJTkZPW1tpXV0kcHJvcGVydGllcyRpZCwNCiAgICAgICAgICAgICAgICAgICAgSU5GT1tbaV1dJGZpbGVzLA0KICAgICAgICAgICAgICAgICAgICBwYXN0ZShuYW1lcyh0ZW1wKSwgY29sbGFwc2UgPSAiLCAiKSkNCiAgfQ0KICAgcmV0dXJuKG91dHB1dCkNCn0NCg0KY3VzdG9tLmNvdW50ZXIgPC0gZnVuY3Rpb24oVk9MLCBTSUQsIERFU0MsIFVTRVJTLCBERikgew0KICAjY29uc3RydWN0IGFuIGVtcHR5IGRhdGFmcmFtZSBtZWV0aW5nIHNwZWNpZmljYXRpb25zDQogIHRvRXhwb3J0IDwtIGRhdGEuZnJhbWUodm9sdW1lID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgc3luSUQgPSBjaGFyYWN0ZXIoKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbiA9IGNoYXJhY3RlcigpLA0KICAgICAgICAgICAgICAgICAgICAgICAgIHVzZXJDb3VudCA9IG51bWVyaWMoKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICB1bmlxdWVPYnMgPSBudW1lcmljKCkpDQogIGlmKG5yb3coREYpID4gMCkgew0KICAgIGZvciAoaSBpbiAxOm5jb2woREYpKSB7DQogICAgICB0b0V4cG9ydFtpLF0gPC0gYyhWT0wsIA0KICAgICAgICAgICAgICAgICAgICAgICAgU0lELA0KICAgICAgICAgICAgICAgICAgICAgICAgREVTQywNCiAgICAgICAgICAgICAgICAgICAgICAgIG5yb3codW5pcXVlKERGWyxVU0VSU10pKSwNCiAgICAgICAgICAgICAgICAgICAgICAgIHN1bSh1bmlxdWUoREYpKSkNCiAgICB9DQogIH0NCiAgcmV0dXJuKHRvRXhwb3J0KQ0KfQ0KDQpgYGANCg0KIyBFeHRyYWN0aW9uIGZyb20gU3luYXBzZQ0KDQpUaGUgQlJJR0hURU4gcmVwb3NpdG9yeSB3YXMgbG9hZGVkIGludG8gYSBsb2NhbCBwcm9qZWN0IGRpcmVjdG9yeSBhbmQgYSB2YXJpYWJsZSBsaXN0IGdlbmVyYXRlZCBmb3IgZWFjaCBmaWxlLg0KDQpgYGB7cn0NCg0KI3RoZXJlIGlzIGFuIGVycm9yIHdoZW4gdHJ5aW5nIHRvIHB1bGwgdGhlIGZ1bGwgcmVwb3NpdG9yeSwgYW5kIHRoaXMgZXJyb3IgaXMgcmVwZWF0ZWQgd2hlbiB0cnlpbmcgdG8gcHVsbCBqdXN0IHRoZSBWMSBkaXJlY3RvcnkgYW5kIGl0cyBzdWJkaXJlY3Rvcmllcy4gTW9yZSBzcGVjaWNpZmNhbGx5LCBpdCBhcHBlYXJzIHRoYXQgaHRlIGJ1bGsgZGF0YSBwdWxsIHRocm93cyBhbiBlcnJvciB3aGVuIGVuY291bnRlcmluZyBXSUtJIGZpbGVzLCBhcyBpcyBmb3VuZCBpbiB0aGUgYW5hbHlzaXMgZGlyZWN0b3J5LiBTa2lwcGluZyB0aGlzIGRpcmVjdG9yeSAocHV0dGluZyBmcm9tIHRoZSBvdGhlciB0d28gZGlyZWN0b3JpZXMgdW5kZXIgVjEpIGJ5cGFzc2VzIHRoaXMgcHJvYmxlbS4NCg0KDQpWMWFJbmZvcm1hdGlvbiA8LSBzeW5hcHNldXRpbHMkc3luY0Zyb21TeW5hcHNlKFNZTkxPR0lOLCBlbnRpdHkgPSAic3luMTAyMzY1MzciLCBwYXRoID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpICkNCg0KVjFiSW5mb3JtYXRpb24gPC0gc3luYXBzZXV0aWxzJHN5bmNGcm9tU3luYXBzZShTWU5MT0dJTiwgZW50aXR5ID0gInN5bjU5MDg1NTgiLCBwYXRoID0gcGFzdGUoREFUQURJUkVDVE9SWSwib3JpZ2luYWwvVjEvIiwgc2VwID0gIiIpICkNCg0KVjJJbmZvcm1hdGlvbiA8LSBzeW5hcHNldXRpbHMkc3luY0Zyb21TeW5hcHNlKFNZTkxPR0lOLCBlbnRpdHkgPSAic3luOTk1MjEyOSIsIHBhdGggPSBwYXN0ZShEQVRBRElSRUNUT1JZLCJvcmlnaW5hbC9WMi8iLCBzZXAgPSAiIikgKQ0KDQpGaWxlQ29udGVudHMgPC0gc2ltcGxlLmNvbnRlbnQubGlzdGluZygiVjEiLCBWMWFJbmZvcm1hdGlvbikNCkZpbGVDb250ZW50cyA8LSByYmluZChGaWxlQ29udGVudHMsIHNpbXBsZS5jb250ZW50Lmxpc3RpbmcoIlYxIiwgVjFiSW5mb3JtYXRpb24pKQ0KRmlsZUNvbnRlbnRzIDwtIHJiaW5kKEZpbGVDb250ZW50cywgc2ltcGxlLmNvbnRlbnQubGlzdGluZygiVjIiLCBWMkluZm9ybWF0aW9uKSkNCiAgICAgIA0KDQoNCkZpbGVDb250ZW50cw0KDQoNCmBgYA0KDQoNCg0KDQpgYGB7cn0NCg0KRmlsZUluZm9ybWF0aW9uIDwtIGRhdGEuZnJhbWUodmVyc2lvbiA9IGNoYXJhY3RlcigpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3luYXBzZUlEID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxlTmFtZSA9IGNoYXJhY3RlcigpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZmlsZURlc2NyaXB0aW9uID0gY2hhcmFjdGVyKCksDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bmlxdWVVc2VycyA9IG51bWVyaWMoKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuaXF1ZU9ic2VydmF0aW9ucyA9IG51bWVyaWMoKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cmluZ3NBc0ZhY3RvcnMgPSBGQUxTRSkNCg0KcmVxdWlyZWRWMUlEcyA8LSBjKCJzeW4xMDIzNjU0NyIsDQogICAgICAgICAgICAgICAgICAgInN5bjEwMjM2NTM4IiwNCiAgICAgICAgICAgICAgICAgICAic3luMTAyMzY1MzkiLA0KICAgICAgICAgICAgICAgICAgICJzeW4xMDIzNjU0MCIsDQogICAgICAgICAgICAgICAgICAgInN5bjEwMDgyODYzIiwNCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0ODMiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0ODQiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0ODciLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0ODgiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0ODkiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0OTAiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0OTEiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0OTMiLCANCiAgICAgICAgICAgICAgICAgICAic3luMTAyNTA0OTQiKQ0KDQpmb3IoaSBpbiByZXF1aXJlZFYxSURzKSB7DQogIHRlbXAgPC0gU1lOTE9HSU4kZ2V0KGksIGRvd25sb2FkTG9jYXRpb24gPSBwYXN0ZShEQVRBRElSRUNUT1JZLCJvcmlnaW5hbC9WMS8iLCBzZXAgPSAiIikpDQogIEZpbGVJbmZvcm1hdGlvbltpLF0gPC0gYygidjEiLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgaSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHRlbXAkZmlsZXMsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBOQSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIE5BLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgTkEpDQp9DQoNCg0KcmVxdWlyZWRWMklEcyA8LSBjKCJzeW4xMTY4NzQzNCIsDQogICAgICAgICAgICAgICAgICAgInN5bjEwMTY1MTk5IiwNCiAgICAgICAgICAgICAgICAgICAic3luMTAxNDk1MzIiLA0KICAgICAgICAgICAgICAgICAgICJzeW4xMDE2NDI0OCIsDQogICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgDQoNCmBgYA0KDQpTdW1tYXJ5IGRhdGEgYXJlIHJlcG9ydGVkIGZvciB0aGUgZm9sbG93aW5nIGZpbGVzDQoNClZvbHVtZSB8RmlsZSBOYW1lICAgICAgICAgICAgICB8IFN5bklEICAgICAgICANCi0tLS0tLS18LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tLQ0KVjEgICAgIHxgciBWMWEkZmlsZXNgICAgICAgICAgIHxzeW4xMDIzNjU0Nw0KVjEgICAgIHxgciBWMWIkZmlsZXNgICAgICAgICAgIHxzeW4xMDIzNjUzOA0KdjEgICAgIHxgciBWMWMkZmlsZXNgICAgICAgICAgIHxTeW4xMDIzNjUzOQ0KVjEgICAgIHxgciBWMWQkZmlsZXNgICAgICAgICAgIHxTeW4xMDIzNjU0MA0KdjEgICAgIHxgciBWMWUkZmlsZXNgICAgICAgICAgIHxTeW4xMDA4Mjg2Mw0KdjEgICAgIHxgciBWMWYkZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ4Mw0KdjEgICAgIHxgciBWMWckZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ4NA0KdjEgICAgIHxgciBWMWgkZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ4Nw0KdjEgICAgIHxgciBWMWkkZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ4OA0KdjEgICAgIHxgciBWMWokZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ4OQ0KdjEgICAgIHxgciBWMWskZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ5MA0KdjEgICAgIHxgciBWMWwkZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ5MQ0KdjEgICAgIHxgciBWMW0kZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ5Mw0KdjEgICAgIHxgciBWMW4kZmlsZXNgICAgICAgICAgIHxTeW4xMDI1MDQ5NA0KDQpgYGB7cn0NCnN5bjEwMjM2NTQ3IDwtIHJlYWQudGFibGUocGFzdGUoVjFhJGNhY2hlRGlyLCAiLyIsVjFhJGZpbGVzLCBzZXAgPSIiKSwgaGVhZGVyID0gVFJVRSkNCnN5bjEwMjM2NTM4IDwtIHJlYWQudGFibGUocGFzdGUoVjFiJGNhY2hlRGlyLCAiLyIsVjFiJGZpbGVzLCBzZXAgPSIiKSwgaGVhZGVyID0gVFJVRSkNCmBgYA0KDQoNCg0K</div>
 
 
 
