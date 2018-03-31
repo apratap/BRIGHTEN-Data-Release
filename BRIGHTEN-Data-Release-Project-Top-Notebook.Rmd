@@ -1,6 +1,8 @@
 ---
 title: "BRIGHTEN Data Release Project - Top Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 # Summary
@@ -34,7 +36,7 @@ output: html_notebook
 
 Task                                                   | Date Started | Date Completed 
 -------------------------------------------------------|--------------|------------
-Description of Initial Contents of Synapse Repository | 2018/03/26   |
+Describe Initial Contents of Synapse Repository        | 2018/03/26   |
 
 ## Prior Tasks
 
@@ -46,4 +48,4 @@ Task                                                   | Date Started | Date Com
 
 Notebook Name                               | URI                        | Description       
 --------------------------------------------|----------------------------|---------------------------- 
-1 - Description of Initially Available Data |                            | Analysis of data as initially presented. Describes Synology IDs, file names, variables, and their frequencies.
+1 - Description of Initially Available Data | https://github.com/apratap/BRIGHTEN-Data-Release/tree/master/1_Description_of_Initially_Available_Data | Analysis of data as initially presented. Describes Synology IDs, file names, variables, and their frequencies.

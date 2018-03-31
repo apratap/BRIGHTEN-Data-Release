@@ -1,6 +1,8 @@
 ---
 title: "1 - Description of Initially Available Data"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 # Summary
@@ -18,6 +20,7 @@ Python and the Synapse python library will need to be setup in the environment. 
 library(knitr)
 library(tools)
 library(xlsx)
+library(data.table)
 library(reticulate) #Python integration into R studio
 
 
@@ -38,57 +41,7 @@ SYNLOGIN <- synapseclient$login() #generate synology login token
 
 The following functions for working with our data are constructed and loaded here:
 
-```{r}
-simple.content.listing <- function(VOL, INFO) {
-  output <- data.frame(volume = character(),
-                     synID = character(),
-                     fileName = character(),
-                     variables = character(),
-                     stringsAsFactors = FALSE)
-   `%!in%` <- Negate('%in%')
-                    
-  for(i in 1:(length(INFO))) {
-    print(i)
-    extension <- tools::file_ext(INFO[[i]]$files)
-    if(extension == "tsv"| extension == "txt") {
-      temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
-    }
-    if(extension == "csv") {
-      temp <- read.csv(INFO[[i]]$path, header = TRUE)
-    }
-    if(extension == "xls" | extension == "xlsx") {
-      temp <- xlsx::read.xlsx(INFO[[i]]$path, sheetIndex = 1)
-    }  
-    if(!exists("temp")) {
-      temp <- "file read error"
-    }
-    
-    output[i,] <- c(VOL,
-                    INFO[[i]]$properties$id,
-                    INFO[[i]]$files,
-                    paste(names(temp), collapse = ", "))
-  }
-   return(output)
-}
-
-custom.counter <- function(VOL, SID, DESC, USERS, DF) {
-  #construct an empty dataframe meeting specifications
-  toExport <- data.frame(volume = character(),
-                         synID = character(),
-                         description = character(),
-                         userCount = numeric(),
-                         uniqueObs = numeric())
-  if(nrow(DF) > 0) {
-    for (i in 1:ncol(DF)) {
-      toExport[i,] <- c(VOL, 
-                        SID,
-                        DESC,
-                        nrow(unique(DF[,USERS])),
-                        sum(unique(DF)))
-    }
-  }
-  return(toExport)
-}
+```{r loading custom functions}
 
 #PRE string identifying volume label content, and synapse file description object (can be list)
 #POST data frame describing the variables in each file named in the synapse object.
@@ -147,41 +100,37 @@ custom.counter <- function(VOL, SID, DESC, USERS, DF) {
 
 # Extraction from Synapse
 
-The BRIGHTEN repository was loaded into a local project directory and a variable list generated for each file.
-
-```{r}
+```{r reading from repository}
 
 #there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories. More specicifcally, it appears that hte bulk data pull throws an error when encountering WIKI files, as is found in the analysis directory. Skipping this directory (putting from the other two directories under V1) bypasses this problem.
-<<<<<<< HEAD
-
 
 V1aInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10236537", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
 
-=======
-
-
-V1aInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10236537", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
-
->>>>>>> ed2b8b3bc35eb6d993aa9276bae06797aae73c18
 V1bInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn5908558", path = paste(DATADIRECTORY,"original/V1/", sep = "") )
 
 V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
+```
 
+The BRIGHTEN repository was loaded into a local project directory. This directory "../origina/.." contains two subdirectories, one for each volume of data provided ("V1", "V2"). We ultimately want to create a single unified volume but need an accurate description of the data in order to build taat schema and data set.
+
+# Building Proto-dictionaries
+
+## Reporting files and their headers
+
+```{r describing file columns}
 FileContents <- simple.content.listing("V1", V1aInformation)
 FileContents <- rbind(FileContents, simple.content.listing("V1", V1bInformation))
 FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
-      
-
+ 
+write.csv(FileContents, paste("OriginalFileContents.csv", sep = ""))   
 
 FileContents
 
-
 ```
 
+## Reporting files and number of observations [work in progress]
 
-
-
-```{r}
+```{r describing file volumes}
 
 FileInformation <- data.frame(version = character(),
                               synapseID = character(),
@@ -206,58 +155,32 @@ requiredV1IDs <- c("syn10236547",
                    "syn10250493", 
                    "syn10250494")
 
-for(i in requiredV1IDs) {
-  temp <- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-  FileInformation[i,] <- c("v1",
-                           i,
-                           temp$files,
-                           NA,
-                           NA,
-                           NA)
-}
-<<<<<<< HEAD
-
-=======
->>>>>>> ed2b8b3bc35eb6d993aa9276bae06797aae73c18
+#for(i in requiredV1IDs) {
+#  temp <- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
+#  FileInformation[i,] <- c("v1",
+#                           i,
+#                           temp$files,
+#                           NA,
+#                           NA,
+#                           NA)
+#}
+                 
 
 requiredV2IDs <- c("syn11687434",
                    "syn10165199",
                    "syn10149532",
-                   "syn10164248",
+                   "syn10164248")
                    
-                   
-
-requiredV2IDs <- c("syn11687434",
-                   "syn10165199",
-                   "syn10149532",
-                   "syn10164248",
-                   
-                   
+    
+        
 
 ```
 
-Summary data are reported for the following files
 
-Volume |File Name              | SynID        
--------|-----------------------|-------------
-V1     |`r V1a$files`          |syn10236547
-V1     |`r V1b$files`          |syn10236538
-v1     |`r V1c$files`          |Syn10236539
-V1     |`r V1d$files`          |Syn10236540
-v1     |`r V1e$files`          |Syn10082863
-v1     |`r V1f$files`          |Syn10250483
-v1     |`r V1g$files`          |Syn10250484
-v1     |`r V1h$files`          |Syn10250487
-v1     |`r V1i$files`          |Syn10250488
-v1     |`r V1j$files`          |Syn10250489
-v1     |`r V1k$files`          |Syn10250490
-v1     |`r V1l$files`          |Syn10250491
-v1     |`r V1m$files`          |Syn10250493
-v1     |`r V1n$files`          |Syn10250494
 
 ```{r}
-syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
-syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
+#syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
+#syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
 ```
 
 
