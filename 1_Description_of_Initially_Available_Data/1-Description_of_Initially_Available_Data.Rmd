@@ -54,7 +54,6 @@ simple.content.listing <- function(VOL, INFO) {
    `%!in%` <- Negate('%in%')
                     
   for(i in 1:(length(INFO))) {
-    print(i)
     extension <- tools::file_ext(INFO[[i]]$files)
     if(extension == "tsv"| extension == "txt") {
       temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
@@ -111,7 +110,7 @@ V1bInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn5908558", 
 V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
 ```
 
-The BRIGHTEN repository was loaded into a local project directory. This directory "../origina/.." contains two subdirectories, one for each volume of data provided ("V1", "V2"). We ultimately want to create a single unified volume but need an accurate description of the data in order to build taat schema and data set.
+The BRIGHTEN repository was loaded into a local project directory. This directory "../origina/." contains two subdirectories, one for each volume of data provided ("V1", "V2"). We ultimately want to create a single unified volume but need an accurate description of the data in order to build taat schema and data set.
 
 # Building Proto-dictionaries
 
@@ -128,6 +127,66 @@ FileContents
 
 ```
 
+## Reporting Matching of V1 and V2 Data
+
+```{r}
+MatchedRecords <- data.frame(V1SynID = character(),
+                          V1FileName = character(),
+                          V2SynID = character(),
+                          V2FileName = character(),
+                          stringsAsFactors = FALSE)
+
+#PRE: a synID and or a file name of two different files to be matched
+#POST: a list ocntaining both a synID and a file name for both files
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA){
+  if(is.na(V1SynID) & !is.na(V1FileName)) {
+    V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
+  }
+  if(is.na(V2SynID) & !is.na(V2FileName)) {
+    V2SynID <- MasterList[MasterList$fileName == V2FileName,]$synID  
+  }
+  if(is.na(V1FileName) & !is.na(V1SynID)) {
+    V1FileName <- MasterList[MasterList$synID == V1SynID,]$fileName
+  }
+  if(is.na(V2FileName) & !is.na(V2SynID)) {
+    V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
+  }
+  if(is.na(V1SynID) | is.na(V2SynID) | is.na(V1FileName) | is.na(V2FileName)) {
+    print("error, unable to find all data")
+    return()
+  }
+  return(c(V1SynID, V1FileName, V2SynID, V2FileName))
+}
+
+
+MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
+
+MatchedRecords[2,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName =    
+MatchedRecords[3,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = 
+MatchedRecords[4,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName =   
+MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv", V2FileName =                
+MatchedRecords[6,]<- add.match(FileContents, V1FileName =  "apps_399.xls", V2FileName =                     
+MatchedRecords[7,]<- add.match(FileContents, V1FileName =  "appsatisfaction_408.xls", V2FileName =           
+MatchedRecords[8,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName =             
+MatchedRecords[9,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName =                      
+MatchedRecords[10,]<- add.match(FileContents, V1FileName =  "healthapps_405.xls", V2FileName =               
+MatchedRecords[11,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName =      
+MatchedRecords[12,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName =           
+MatchedRecords[13,]<- add.match(FileContents, V1FileName =  "qualityoflife_401.xls", V2FileName =             
+MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = 
+
+
+  
+  
+
+
+#matches added as identified
+
+
+```
+
+
+
 ## Reporting files and number of observations [work in progress]
 
 ```{r describing file volumes}
@@ -140,20 +199,7 @@ FileInformation <- data.frame(version = character(),
                               uniqueObservations = numeric(),
                               stringsAsFactors = FALSE)
 
-requiredV1IDs <- c("syn10236547",
-                   "syn10236538",
-                   "syn10236539",
-                   "syn10236540",
-                   "syn10082863",
-                   "syn10250483", 
-                   "syn10250484", 
-                   "syn10250487", 
-                   "syn10250488", 
-                   "syn10250489", 
-                   "syn10250490", 
-                   "syn10250491", 
-                   "syn10250493", 
-                   "syn10250494")
+
 
 #for(i in requiredV1IDs) {
 #  temp <- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
