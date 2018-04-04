@@ -48,6 +48,7 @@ The following functions for working with our data are constructed and loaded her
 simple.content.listing <- function(VOL, INFO) {
   output <- data.frame(volume = character(),
                      synID = character(),
+                     path = character(),
                      fileName = character(),
                      variables = character(),
                      stringsAsFactors = FALSE)
@@ -70,6 +71,7 @@ simple.content.listing <- function(VOL, INFO) {
     
     output[i,] <- c(VOL,
                     INFO[[i]]$properties$id,
+                    INFO[[i]]$path,
                     INFO[[i]]$files,
                     paste(names(temp), collapse = ", "))
   }
@@ -183,38 +185,16 @@ MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2F
 
 
 
-## Reporting files and number of observations [work in progress]
+## Reporting files and number of observations
 
 ```{r describing file volumes}
 
-FileInformation <- data.frame(version = character(),
-                              synapseID = character(),
-                              fileName = character(),
-                              fileDescription = character(),
-                              uniqueUsers = numeric(),
-                              uniqueObservations = numeric(),
-                              stringsAsFactors = FALSE)
+FileInformation <- FileContents
+
+FileInformation$uniqueObservations <- NA
+FileInformation$uniqueObservations <- 
 
 
-
-#for(i in requiredV1IDs) {
-#  temp <- SYNLOGIN$get(i, downloadLocation = paste(DATADIRECTORY,"original/V1/", sep = ""))
-#  FileInformation[i,] <- c("v1",
-#                           i,
-#                           temp$files,
-#                           NA,
-#                           NA,
-#                           NA)
-#}
-                 
-
-requiredV2IDs <- c("syn11687434",
-                   "syn10165199",
-                   "syn10149532",
-                   "syn10164248")
-                   
-    
-        
 
 ```
 
@@ -224,6 +204,7 @@ requiredV2IDs <- c("syn11687434",
 #syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
 #syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
 ```
+
 
 
 
