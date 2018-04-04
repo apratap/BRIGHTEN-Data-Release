@@ -124,7 +124,7 @@ FileContents <- simple.content.listing("V1", V1aInformation)
 FileContents <- rbind(FileContents, simple.content.listing("V1", V1bInformation))
 FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
  
-write.csv(FileContents, paste("OriginalFileContents.csv", sep = ""))   
+write.csv(FileContents[,!(names(FileContents) %in% "path")], paste("OriginalFileContents.csv", sep = ""))   
 
 FileContents
 
