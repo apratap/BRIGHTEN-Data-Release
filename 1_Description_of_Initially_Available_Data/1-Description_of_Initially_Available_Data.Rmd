@@ -53,10 +53,14 @@ simple.content.listing <- function(VOL, INFO) {
                      fileName = character(),
                      variables = character(),
                      stringsAsFactors = FALSE)
-   `%!in%` <- Negate('%in%')
+  `%!in%` <- Negate('%in%')
+  
+  #IN 
+  
+  #temp <- find.data(INFO$path)
                     
   for(i in 1:(length(INFO))) {
-    extension <- tools::file_ext(INFO[[i]]$files)
+    extension <- tools::file_ext(INFO[[i]]$path)
     if(extension == "tsv"| extension == "txt") {
       temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
     }
@@ -197,7 +201,12 @@ FileInformation$brightenid <- 0
 FileInformation$username <- 0
 FileInformation$Response.ID <- 0
 
-for(i in c(names(FileInformation)[5:8])) {
+ids <- c("user_id","brightenid","username","Response ID")
+for (i in ids) {
+  FileInformation[,i] <- 0
+}
+
+for(i in ids) {
   for(j in 1:nrow(FileInformation)) {
     if(str_detect(FileInformation[j,"variables"], i)) {
       FileInformation[j,i] <- 1
@@ -205,11 +214,29 @@ for(i in c(names(FileInformation)[5:8])) {
   }
 }
 
+FileInformation$uniqueObservations <- 0
 
+for (i in 1:nrow(FileInformation)) {
+  extension <- tools::file_ext(FileInformation[i,]$path)
+  if(extension == "tsv"| extension == "txt") {
+    temp <-as.data.frame(fread(FileInformation[i,]$path, check.names = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+  }
+  if(extension == "csv") {
+    temp <- read.csv(FileInformation[i,]$path, header = TRUE, check.names = FALSE)
+  }
+  if(extension == "xls" | extension == "xlsx") {
+    temp <- xlsx::read.xlsx(FileInformation[i,]$path, sheetIndex = 1)
+  }  
+  FileInformation[i,]$uniqueObservations <- nrow(unique(temp))
+  for (j in ids) {
+    if (FileInformation[i,j] == 1) {
+      FileInformation[i,j] <- length(unique(temp[,j]))
 
+    }
 
-FileInformation$uniqueObservations <- NA
-FileInformation$uniqueObservations <- 
+  }
+}
+#FileInformation[i,]$uniqueObservations <- 
 
 
 
