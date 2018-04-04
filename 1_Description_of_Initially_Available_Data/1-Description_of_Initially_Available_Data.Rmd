@@ -17,11 +17,12 @@ Python and the Synapse python library will need to be setup in the environment. 
 #Needed Libraries 
 # Setup loop to check in library is installed....
 #library(synapser) #Synapse API
-library(knitr)
+library(knitr) #command line option in compiling notebook
 library(tools)
-library(xlsx)
-library(data.table)
+library(xlsx) #read xmls files
+library(data.table) 
 library(reticulate) #Python integration into R studio
+library(stringr) #parse strings
 
 
 #library(PythonInR) #required to use some of sysapse API
@@ -189,7 +190,23 @@ MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2F
 
 ```{r describing file volumes}
 
+#indicating presence of possible key variables
 FileInformation <- FileContents
+FileInformation$user_id <- 0
+FileInformation$brightenid <- 0
+FileInformation$username <- 0
+FileInformation$Response.ID <- 0
+
+for(i in c(names(FileInformation)[5:8])) {
+  for(j in 1:nrow(FileInformation)) {
+    if(str_detect(FileInformation[j,"variables"], i)) {
+      FileInformation[j,i] <- 1
+    }
+  }
+}
+
+
+
 
 FileInformation$uniqueObservations <- NA
 FileInformation$uniqueObservations <- 
