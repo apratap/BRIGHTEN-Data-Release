@@ -223,8 +223,9 @@ FileInformation$uniqueObservations <- 0
 
 #laod data and, if indicator is 1, rpelace it with how many unique observations were made of that variable, count number of totally unique rows
 for (i in 1:nrow(FileInformation)) {
-  FileInformation[i,]$uniqueObservations <- nrow(unique(temp))
+
   retrievedData <- find.data(FileInformation[i,]$path)
+  FileInformation[i,]$uniqueObservations <- nrow(unique(retrievedData))
   for (IDName in ids) {
     if (FileInformation[i,IDName] == 1) {
       FileInformation[i,IDName] <- length(unique(retrievedData[,IDName]))
