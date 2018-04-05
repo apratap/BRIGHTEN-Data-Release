@@ -53,24 +53,12 @@ simple.content.listing <- function(VOL, INFO) {
                      fileName = character(),
                      variables = character(),
                      stringsAsFactors = FALSE)
-  `%!in%` <- Negate('%in%')
-  
   #IN 
-  
-  #temp <- find.data(INFO$path)
-                    
+  `%!in%` <- Negate('%in%')
   for(i in 1:(length(INFO))) {
-    extension <- tools::file_ext(INFO[[i]]$path)
-    if(extension == "tsv"| extension == "txt") {
-      temp <-as.data.frame(fread(INFO[[i]]$path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
-    }
-    if(extension == "csv") {
-      temp <- read.csv(INFO[[i]]$path, header = TRUE)
-    }
-    if(extension == "xls" | extension == "xlsx") {
-      temp <- xlsx::read.xlsx(INFO[[i]]$path, sheetIndex = 1)
-    }  
-    if(!exists("temp")) {
+    print(i)
+    temp <- find.data(INFO[[i]]$path)
+    if(is.na(temp)) {
       temp <- "file read error"
     }
     
@@ -81,6 +69,26 @@ simple.content.listing <- function(VOL, INFO) {
                     paste(names(temp), collapse = ", "))
   }
    return(output)
+}
+
+
+#PRE a path to a file of either tsv csv or xls
+#post a data frame containin the contents of that file, or NA if not found
+find.data <- function(path) {
+  extension <- tools::file_ext(path)
+  if(extension == "tsv"| extension == "txt") {
+    temp <-as.data.frame(fread(path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+  }
+  if(extension == "csv") {
+    temp <- read.csv(path, header = TRUE)
+  }
+  if(extension == "xls" | extension == "xlsx") {
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1)
+  }  
+  if(!exists("temp")) {
+    temp <- FALSE
+  }
+  return(temp)
 }
 
 custom.counter <- function(VOL, SID, DESC, USERS, DF) {
@@ -183,7 +191,7 @@ MatchedRecords[12,]<- add.match(FileContents, V1FileName =  "moodassessment_407.
 MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep.csv")
 
 
-#matches added as identified
+#write matches to file for sharing
 
 
 ```
@@ -194,18 +202,14 @@ MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2F
 
 ```{r describing file volumes}
 
-#indicating presence of possible key variables
 FileInformation <- FileContents
-FileInformation$user_id <- 0
-FileInformation$brightenid <- 0
-FileInformation$username <- 0
-FileInformation$Response.ID <- 0
-
+#ceate new columns as indicator variables fo rthe existense of each ID variable type
 ids <- c("user_id","brightenid","username","Response ID")
 for (i in ids) {
   FileInformation[,i] <- 0
 }
 
+#assign indicator of 0 or 1
 for(i in ids) {
   for(j in 1:nrow(FileInformation)) {
     if(str_detect(FileInformation[j,"variables"], i)) {
@@ -214,23 +218,16 @@ for(i in ids) {
   }
 }
 
+#add a column to total unique observations in data
 FileInformation$uniqueObservations <- 0
 
+#laod data and, if indicator is 1, rpelace it with how many unique observations were made of that variable, count number of totally unique rows
 for (i in 1:nrow(FileInformation)) {
-  extension <- tools::file_ext(FileInformation[i,]$path)
-  if(extension == "tsv"| extension == "txt") {
-    temp <-as.data.frame(fread(FileInformation[i,]$path, check.names = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
-  }
-  if(extension == "csv") {
-    temp <- read.csv(FileInformation[i,]$path, header = TRUE, check.names = FALSE)
-  }
-  if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(FileInformation[i,]$path, sheetIndex = 1)
-  }  
   FileInformation[i,]$uniqueObservations <- nrow(unique(temp))
-  for (j in ids) {
-    if (FileInformation[i,j] == 1) {
-      FileInformation[i,j] <- length(unique(temp[,j]))
+  retrievedData <- find.data(FileInformation[i,]$path)
+  for (IDName in ids) {
+    if (FileInformation[i,IDName] == 1) {
+      FileInformation[i,IDName] <- length(unique(retrievedData[,IDName]))
 
     }
 
