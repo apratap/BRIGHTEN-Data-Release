@@ -5,9 +5,18 @@ output:
     df_print: paged
 ---
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, 
+                      warning=FALSE, 
+                      message=FALSE,
+                      cache = TRUE)
+
+
+```
+
 # Summary
 
-A report of data quality necessary for planing of ETL activities for generation of a final and public repository of BRIGHTEN reserach data. Original files, their version, synapse ID, name, and contained variables are described in part 1. In part 2 all variables are described by the synapse ID of thier containing file, data type, frequency of subjects, frequency of tasks, mean, and standard deviation
+A report of data quality necessary for planing of ETL activities for generation of a final and public repository of BRIGHTEN reserach data. Pulls data from origina synapse repository and generates 3 reports: variable names per file, list of matches between V1 and v2 files, and a report of username frequencies and unique observations in all files.
 
 # Environment
 
@@ -34,6 +43,11 @@ synapseutils <- import('synapseutils')
 #Constants
 #File locations and directories
 DATADIRECTORY <- "../Data/"
+REPORTDIRECTORY <- "../Reports/Description of Initially Available Data/"
+
+dir.create(DATADIRECTORY)
+dir.create("../Reports/")
+dir.create(REPORTDIRECTORY)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
 ```
@@ -56,7 +70,6 @@ simple.content.listing <- function(VOL, INFO) {
   #IN 
   `%!in%` <- Negate('%in%')
   for(i in 1:(length(INFO))) {
-    print(i)
     temp <- find.data(INFO[[i]]$path)
     if(is.na(temp)) {
       temp <- "file read error"
@@ -80,7 +93,7 @@ find.data <- function(path) {
     temp <-as.data.frame(fread(path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
   }
   if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE)
+    temp <- read.csv(path, header = TRUE, check.names = FALSE)
   }
   if(extension == "xls" | extension == "xlsx") {
     temp <- xlsx::read.xlsx(path, sheetIndex = 1)
@@ -114,7 +127,7 @@ custom.counter <- function(VOL, SID, DESC, USERS, DF) {
 
 # Extraction from Synapse
 
-```{r reading from repository}
+```{r pulling data from repository}
 
 #there is an error when trying to pull the full repository, and this error is repeated when trying to pull just the V1 directory and its subdirectories. More specicifcally, it appears that hte bulk data pull throws an error when encountering WIKI files, as is found in the analysis directory. Skipping this directory (putting from the other two directories under V1) bypasses this problem.
 
@@ -125,24 +138,33 @@ V1bInformation <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn5908558", 
 V2Information <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn9952129", path = paste(DATADIRECTORY,"original/V2/", sep = "") )
 ```
 
-The BRIGHTEN repository was loaded into a local project directory. This directory "../origina/." contains two subdirectories, one for each volume of data provided ("V1", "V2"). We ultimately want to create a single unified volume but need an accurate description of the data in order to build taat schema and data set.
+The BRIGHTEN repository was loaded into a local project directory. This directory "../original/." contains two subdirectories, one for each volume of data provided ("V1", "V2"). We ultimately want to create a single unified volume but need an accurate description of the data in order to build an unified schema and data set.
 
-# Building Proto-dictionaries
-
-## Reporting files and their headers
+# Reporting files and their headers
 
 ```{r describing file columns}
 FileContents <- simple.content.listing("V1", V1aInformation)
 FileContents <- rbind(FileContents, simple.content.listing("V1", V1bInformation))
 FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
  
-write.csv(FileContents[,!(names(FileContents) %in% "path")], paste("OriginalFileContents.csv", sep = ""))   
+write.csv(FileContents[,!(names(FileContents) %in% "path")], paste(REPORTDIRECTORY, "OriginalFileContents.csv", sep = ""))   
 
-FileContents
+toShow <- data.frame("Variable" <- names(FileContents),
+                     "Data Type" <- as.character(sapply(FileContents, typeof)),
+                     "Description" <- c("Study volume indicator",
+                                        "Synapse ID",
+                                        "Local Path (not exported)",
+                                        "File name",
+                                        "comma seperated list of all variables contained in file"),
+                      stringsAsFactors = FALSE)
 
 ```
 
-## Reporting Matching of V1 and V2 Data
+We generate a simple description of file contents and save it to our reports folder `r REPORTDIRECTORY`.
+
+kable(toShow, caption = "Report Description")
+
+# Reporting Matching of V1 and V2 Data
 
 ```{r}
 MatchedRecords <- data.frame(V1SynID = character(),
@@ -192,11 +214,23 @@ MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2F
 
 
 #write matches to file for sharing
+write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = ""))   
 
+
+#create table to display data dictionary of report
+toShow <- data.frame("Variable" <- names(MatchedRecords),
+                     "Data Type" <- as.character(sapply(MatchedRecords, typeof)),
+                     "Description" <- c("Synology ID of file from V1",
+                                        "Name of file from V1",
+                                        "Synology ID of file from V2",
+                                        "Name of file from V2"),
+                      stringsAsFactors = FALSE)
 
 ```
 
+A report of currently matched V1 and V2 files is generated and save to our reports folder.
 
+kable(toShow, caption = "Report Description")
 
 ## Reporting files and number of observations
 
@@ -204,7 +238,7 @@ MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2F
 
 FileInformation <- FileContents
 #ceate new columns as indicator variables fo rthe existense of each ID variable type
-ids <- c("user_id","brightenid","username","Response ID")
+ids <- c("user_id","brightenid","username","Username","Response ID")
 for (i in ids) {
   FileInformation[,i] <- 0
 }
@@ -234,19 +268,31 @@ for (i in 1:nrow(FileInformation)) {
 
   }
 }
-#FileInformation[i,]$uniqueObservations <- 
 
+#Removing undesired variables
+FileInformationPrivatized <-FileInformation[,!(names(FileInformation) %in% c("path","variables"))]
+
+
+#writefile showing frequencies
+write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
+
+
+#create table to display data dictionary of report
+toShow <- data.frame("Variable" <- names(FileInformationPrivatized),
+                     "Data Type" <- as.character(sapply(FileInformationPrivatized, typeof)),
+                     "Description" <- c("Study volume indicator",
+                                        "Synology ID",
+                                        "File name",
+                                        "Frequency of unique 'user_id'",
+                                        "Frequency of unique 'brightenid'",
+                                        "Frequency of unique 'username'",
+                                        "Frequency of unique 'Username'",
+                                        "Frequency of unique 'Response ID'",
+                                        "Frequency of unique observations"),
+                      stringsAsFactors = FALSE)
 
 
 ```
+A report of user name frequencies is generated and saved. Its data dictionary is below.
 
-
-
-```{r}
-#syn10236547 <- read.table(paste(V1a$cacheDir, "/",V1a$files, sep =""), header = TRUE)
-#syn10236538 <- read.table(paste(V1b$cacheDir, "/",V1b$files, sep =""), header = TRUE)
-```
-
-
-
-
+kable(toShow, caption = "Report Description")
