@@ -169,13 +169,15 @@ kable(toShow, caption = "Report Description")
 ```{r}
 MatchedRecords <- data.frame(V1SynID = character(),
                           V1FileName = character(),
+                          V1Variables = character(),
                           V2SynID = character(),
                           V2FileName = character(),
+                          V2Variables = character(),
                           stringsAsFactors = FALSE)
 
 #PRE: a synID and or a file name of two different files to be matched
 #POST: a list ocntaining both a synID and a file name for both files
-add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA){
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
   if(is.na(V1SynID) & !is.na(V1FileName)) {
     V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
   }
@@ -188,12 +190,15 @@ add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V
   if(is.na(V2FileName) & !is.na(V2SynID)) {
     V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
   }
-  if(is.na(V1SynID) | is.na(V2SynID) | is.na(V1FileName) | is.na(V2FileName)) {
-    print("error, unable to find all data")
-    return()
+  if(!is.na(V1SynID)) {
+    V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
   }
-  return(c(V1SynID, V1FileName, V2SynID, V2FileName))
+  if(!is.na(V2SynID)) {
+    V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
+  }
+  return(c(V1SynID, V1FileName, V1Variables, V2SynID, V2FileName, V2Variables ))
 }
+
 
 
 MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
@@ -201,15 +206,15 @@ MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_
 MatchedRecords[2,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName = "phq2_brighten_v2.tsv")
 MatchedRecords[3,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
 MatchedRecords[4,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
-#MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv", V2FileName =                
-#MatchedRecords[6,]<- add.match(FileContents, V1FileName =  "apps_399.xls", V2FileName =                     
-#MatchedRecords[7,]<- add.match(FileContents, V1FileName =  "appsatisfaction_408.xls", V2FileName =           
+MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv")        
+MatchedRecords[6,]<- add.match(FileContents, V1FileName =  "apps_399.xls")
+MatchedRecords[7,]<- add.match(FileContents, V1FileName =  "appsatisfaction_408.xls")         
 MatchedRecords[8,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
 MatchedRecords[9,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName = "gad-7.csv")             
 MatchedRecords[10,]<- add.match(FileContents, V1FileName =  "healthapps_405.xls", V2FileName = "health app overview.csv")             
 MatchedRecords[11,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName = "impact-mh.csv")   
 MatchedRecords[12,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")        
-#MatchedRecords[13,]<- add.match(FileContents, V1FileName =  "qualityoflife_401.xls", V2FileName =             
+MatchedRecords[13,]<- add.match(FileContents, V1FileName =  "qualityoflife_401.xls")           
 MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep.csv")
 
 
