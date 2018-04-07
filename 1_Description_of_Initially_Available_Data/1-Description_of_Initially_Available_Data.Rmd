@@ -123,6 +123,31 @@ custom.counter <- function(VOL, SID, DESC, USERS, DF) {
   return(toExport)
 }
 
+#PRE: formated filecontents data frame, two synIDs or file names.
+#POST: a list containing the synID, file name, and variables for each file
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
+  if(is.na(V1SynID) & !is.na(V1FileName)) {
+    V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
+  }
+  if(is.na(V2SynID) & !is.na(V2FileName)) {
+    V2SynID <- MasterList[MasterList$fileName == V2FileName,]$synID  
+  }
+  if(is.na(V1FileName) & !is.na(V1SynID)) {
+    V1FileName <- MasterList[MasterList$synID == V1SynID,]$fileName
+  }
+  if(is.na(V2FileName) & !is.na(V2SynID)) {
+    V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
+  }
+  if(!is.na(V1SynID)) {
+    V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
+  }
+  if(!is.na(V2SynID)) {
+    V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
+  }
+  return(c(V1SynID, V1FileName, V1Variables, V2SynID, V2FileName, V2Variables ))
+}
+
+
 ```
 
 # Extraction from Synapse
@@ -149,14 +174,15 @@ FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
  
 write.csv(FileContents[,!(names(FileContents) %in% "path")], paste(REPORTDIRECTORY, "OriginalFileContents.csv", sep = ""))   
 
-toShow <- data.frame("Variable" <- names(FileContents),
-                     "Data Type" <- as.character(sapply(FileContents, typeof)),
-                     "Description" <- c("Study volume indicator",
+toShow <- data.frame("Variable" = names(FileContents),
+                     "Data Type" = as.character(sapply(FileContents, typeof)),
+                     "Description" = c("Study volume indicator",
                                         "Synapse ID",
                                         "Local Path (not exported)",
                                         "File name",
                                         "comma seperated list of all variables contained in file"),
-                      stringsAsFactors = FALSE)
+                      stringsAsFactors = FALSE,
+                     check.names = FALSE)
 
 ```
 
@@ -177,28 +203,6 @@ MatchedRecords <- data.frame(V1SynID = character(),
 
 #PRE: a synID and or a file name of two different files to be matched
 #POST: a list ocntaining both a synID and a file name for both files
-add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
-  if(is.na(V1SynID) & !is.na(V1FileName)) {
-    V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
-  }
-  if(is.na(V2SynID) & !is.na(V2FileName)) {
-    V2SynID <- MasterList[MasterList$fileName == V2FileName,]$synID  
-  }
-  if(is.na(V1FileName) & !is.na(V1SynID)) {
-    V1FileName <- MasterList[MasterList$synID == V1SynID,]$fileName
-  }
-  if(is.na(V2FileName) & !is.na(V2SynID)) {
-    V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
-  }
-  if(!is.na(V1SynID)) {
-    V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
-  }
-  if(!is.na(V2SynID)) {
-    V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
-  }
-  return(c(V1SynID, V1FileName, V1Variables, V2SynID, V2FileName, V2Variables ))
-}
-
 
 
 MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
@@ -206,7 +210,7 @@ MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_
 MatchedRecords[2,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName = "phq2_brighten_v2.tsv")
 MatchedRecords[3,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
 MatchedRecords[4,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
-MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv")        
+MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv")   
 MatchedRecords[6,]<- add.match(FileContents, V1FileName =  "apps_399.xls")
 MatchedRecords[7,]<- add.match(FileContents, V1FileName =  "appsatisfaction_408.xls")         
 MatchedRecords[8,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
@@ -223,13 +227,14 @@ write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = "")
 
 
 #create table to display data dictionary of report
-toShow <- data.frame("Variable" <- names(MatchedRecords),
-                     "Data Type" <- as.character(sapply(MatchedRecords, typeof)),
-                     "Description" <- c("Synology ID of file from V1",
+toShow <- data.frame("Variable" = names(MatchedRecords),
+                     "Data Type" = as.character(sapply(MatchedRecords, typeof)),
+                     "Description" = c("Synology ID of file from V1",
                                         "Name of file from V1",
                                         "Synology ID of file from V2",
                                         "Name of file from V2"),
-                      stringsAsFactors = FALSE)
+                      stringsAsFactors = FALSE,
+                     check.names = FALSE)
 
 ```
 
@@ -260,7 +265,7 @@ for(i in ids) {
 #add a column to total unique observations in data
 FileInformation$uniqueObservations <- 0
 
-#laod data and, if indicator is 1, rpelace it with how many unique observations were made of that variable, count number of totally unique rows
+#laod data and, if indicator is 1, replace it with how many unique observations were made of that variable, count number of totally unique rows
 for (i in 1:nrow(FileInformation)) {
 
   retrievedData <- find.data(FileInformation[i,]$path)
@@ -274,27 +279,32 @@ for (i in 1:nrow(FileInformation)) {
   }
 }
 
-#Removing undesired variables
-FileInformationPrivatized <-FileInformation[,!(names(FileInformation) %in% c("path","variables"))]
+#Merge User Count columns
+FileInformation$userID <- apply(FileInformation[,c("user_id","username","Username","Response ID")],1, "max")
 
+
+
+
+#Dont show these:
+# "path","variables","user_id","username","Username","Response ID"
+
+FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","brightenid","userID","uniqueObservations")]
 
 #writefile showing frequencies
 write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
 
 
 #create table to display data dictionary of report
-toShow <- data.frame("Variable" <- names(FileInformationPrivatized),
-                     "Data Type" <- as.character(sapply(FileInformationPrivatized, typeof)),
-                     "Description" <- c("Study volume indicator",
+toShow <- data.frame("Variable" = names(FileInformationPrivatized),
+                     "Data Type" = as.character(sapply(FileInformationPrivatized, typeof)),
+                     "Description" = c("Study volume indicator",
                                         "Synology ID",
                                         "File name",
-                                        "Frequency of unique 'user_id'",
                                         "Frequency of unique 'brightenid'",
-                                        "Frequency of unique 'username'",
-                                        "Frequency of unique 'Username'",
-                                        "Frequency of unique 'Response ID'",
-                                        "Frequency of unique observations"),
-                      stringsAsFactors = FALSE)
+                                        "Frequency of unique observations",
+                                        "Frequency of other user IDs"),
+                      stringsAsFactors = FALSE,
+                     check.names = FALSE)
 
 
 ```
