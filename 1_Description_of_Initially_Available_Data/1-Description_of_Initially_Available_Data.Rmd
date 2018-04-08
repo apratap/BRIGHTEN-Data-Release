@@ -248,7 +248,7 @@ kable(toShow, caption = "Report Description")
 
 FileInformation <- FileContents
 #ceate new columns as indicator variables fo rthe existense of each ID variable type
-ids <- c("user_id","brightenid","username","Username","Response ID")
+ids <- c("brightenid","user_id","username","Username","Response ID")
 for (i in ids) {
   FileInformation[,i] <- 0
 }
@@ -279,6 +279,35 @@ for (i in 1:nrow(FileInformation)) {
   }
 }
 
+
+
+#calculate mean number of observations per user and the SD
+FileInformation$brightenidSD <- 0
+FileInformation$userIDSD <- 0
+FileInformation$brightenidMeanObs <- 0
+FileInformation$userIDMeanObs <- 0
+
+for (i in 1:(nrow(FileContents))) {
+  temp <- find.data(FileInformation[i,]$path)
+  maxTest <- max(FileInformation[i,ids[-1]])
+  if(maxTest > 0) {
+    for(j in ids[-1]) {
+      if (FileInformation[i, j] == maxTest) {
+        print(i)
+        print(j)
+        FileInformation[i,]$userIDMeanObs <- mean(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
+        FileInformation[i,]$userIDSD <- sd(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
+      }
+    }
+  }
+  if (FileInformation[i,"brightenid"] > 0) {
+    temp <- find.data(FileInformation[i,]$path)
+    FileInformation[i,]$brightenidMeanObs <- mean(aggregate(paste(brightenid)~brightenid, temp, length)[[2]], na.rm=TRUE)
+    FileInformation[i,]$brightenidSD <- sd(aggregate(paste(brightenid)~brightenid, temp, length)[[2]], na.rm = TRUE)
+  }
+}
+
+
 #Merge User Count columns
 FileInformation$userID <- apply(FileInformation[,c("user_id","username","Username","Response ID")],1, "max")
 
@@ -301,8 +330,8 @@ toShow <- data.frame("Variable" = names(FileInformationPrivatized),
                                         "Synology ID",
                                         "File name",
                                         "Frequency of unique 'brightenid'",
-                                        "Frequency of unique observations",
-                                        "Frequency of other user IDs"),
+                                        "Frequency of other user IDs",
+                                        "Frequency of unique observations"),
                       stringsAsFactors = FALSE,
                      check.names = FALSE)
 
