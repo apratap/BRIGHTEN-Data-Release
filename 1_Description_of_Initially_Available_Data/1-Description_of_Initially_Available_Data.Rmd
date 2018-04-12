@@ -205,22 +205,24 @@ MatchedRecords <- data.frame(V1SynID = character(),
 #POST: a list ocntaining both a synID and a file name for both files
 
 
-MatchedRecords[1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName = "phq2_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName = "gad-7.csv")             
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "healthapps_405.xls", V2FileName = "health app overview.csv")             
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName = "impact-mh.csv")   
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")        
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep.csv")
 
-MatchedRecords[2,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName = "phq2_brighten_v2.tsv")
-MatchedRecords[3,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
-MatchedRecords[4,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
-MatchedRecords[5,]<- add.match(FileContents, V1FileName =  "005_allses_set.csv")   
-MatchedRecords[6,]<- add.match(FileContents, V1FileName =  "apps_399.xls")
-MatchedRecords[7,]<- add.match(FileContents, V1FileName =  "appsatisfaction_408.xls")         
-MatchedRecords[8,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
-MatchedRecords[9,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName = "gad-7.csv")             
-MatchedRecords[10,]<- add.match(FileContents, V1FileName =  "healthapps_405.xls", V2FileName = "health app overview.csv")             
-MatchedRecords[11,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName = "impact-mh.csv")   
-MatchedRecords[12,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")        
-MatchedRecords[13,]<- add.match(FileContents, V1FileName =  "qualityoflife_401.xls")           
-MatchedRecords[14,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep.csv")
+for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V1SynID & FileContents$volume == "V1",]$synID) {
+  MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1SynID = i)
+}
 
+for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V2SynID & FileContents$volume == "V2",]$synID) {
+  MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V2SynID = i)
+}
 
 #write matches to file for sharing
 write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = ""))   
@@ -237,6 +239,8 @@ toShow <- data.frame("Variable" = names(MatchedRecords),
                                        "List of V2 File's Variables"),
                       stringsAsFactors = FALSE,
                      check.names = FALSE)
+
+write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = ""))  
 
 ```
 
@@ -320,24 +324,21 @@ FileInformation$userID <- apply(FileInformation[,c("user_id","username","Usernam
 #formatting SD
 FileInformation$brightenidCI <- NA
 FileInformation$userIDCI <- NA
-FileInformation$brightenidCI <- paste("95% CI ",
-                                      round(FileInformation$brightenidMeanObs 
-                                            - (FileInformation$brightenidSD * 1.96)), 
-                                      " to ", 
-                                      round(FileInformation$brightenidMeanObs 
-                                            + (FileInformation$brightenidSD * 1.96)))
-FileInformation$userIDCI <- paste("95% CI ",
-                                  round(FileInformation$userIDMeanObs 
-                                        - (FileInformation$userIDSD * 1.96)), 
-                                  " to ", 
-                                  round(FileInformation$userIDMeanObs 
-                                        + (FileInformation$userIDSD * 1.96)))
+FileInformation$brightenidMeanSD <- paste(round(FileInformation$brightenidMeanObs),
+                                      " ± ",
+                                      round(FileInformation$brightenidSD),
+                                      sep = "")
+
+FileInformation$userIDMeanSD <- paste(round(FileInformation$userIDMeanObs),
+                                  " ± ",
+                                  round(FileInformation$userIDSD), 
+                                  sep = "")
 
 
 #Dont show these:
 # "path","variables","user_id","username","Username","Response ID"
 
-FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","brightenid","userID","N","userIDMeanObs","userIDCI","brightenidMeanObs","brightenidCI")]
+FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","brightenid","userID","N","userIDMeanSD","brightenidMeanSD")]
 
 #writefile showing frequencies
 write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
@@ -353,9 +354,7 @@ toShow <- data.frame("Variable" = names(FileInformationPrivatized),
                                         "Frequency of other user IDs",
                                         "Frequency of observations",
                                         "Mean number of observations per other user ID",
-                                       "95% confidence interval of mean on Other ID",
-                                       "Mean number of observations per brighten ID",
-                                       "95% confidence interval of mean on brighten ID"),
+                                       "Mean number of observations per brighten ID"),
                       stringsAsFactors = FALSE,
                      check.names = FALSE)
 
