@@ -6,10 +6,10 @@ output:
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(echo=FALSE, 
-                      warning=FALSE, 
-                      message=FALSE,
-                      cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE,
+                      cache = FALSE)
 
 
 ```
@@ -32,7 +32,7 @@ library(xlsx) #read xmls files
 library(data.table) 
 library(reticulate) #Python integration into R studio
 library(stringr) #parse strings
-
+source("../CustomFunctions.R") #custom functions for working with synapse and our data
 
 #library(PythonInR) #required to use some of sysapse API
 
@@ -50,59 +50,14 @@ dir.create("../Reports/")
 dir.create(REPORTDIRECTORY)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
+
 ```
 
-# Loading Custom Functions
+# Load Local Functions
 
-The following functions for working with our data are constructed and loaded here:
+These are convienence functions for processees in this notebook. Functions common to working with synapse and our datda in general can be found in ../CustomFunctons.R
 
-```{r loading custom functions}
-
-#PRE string identifying volume label content, and synapse file description object (can be list)
-#POST data frame describing the variables in each file named in the synapse object.
-simple.content.listing <- function(VOL, INFO) {
-  output <- data.frame(volume = character(),
-                     synID = character(),
-                     path = character(),
-                     fileName = character(),
-                     variables = character(),
-                     stringsAsFactors = FALSE)
-  #IN 
-  `%!in%` <- Negate('%in%')
-  for(i in 1:(length(INFO))) {
-    temp <- find.data(INFO[[i]]$path)
-    if(is.na(temp)) {
-      temp <- "file read error"
-    }
-    
-    output[i,] <- c(VOL,
-                    INFO[[i]]$properties$id,
-                    INFO[[i]]$path,
-                    INFO[[i]]$files,
-                    paste(names(temp), collapse = ", "))
-  }
-   return(output)
-}
-
-
-#PRE a path to a file of either tsv csv or xls
-#post a data frame containin the contents of that file, or NA if not found
-find.data <- function(path) {
-  extension <- tools::file_ext(path)
-  if(extension == "tsv"| extension == "txt") {
-    temp <-as.data.frame(fread(path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
-  }
-  if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE, check.names = FALSE)
-  }
-  if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1)
-  }  
-  if(!exists("temp")) {
-    temp <- FALSE
-  }
-  return(temp)
-}
+```{r loading_custom_functons}
 
 custom.counter <- function(VOL, SID, DESC, USERS, DF) {
   #construct an empty dataframe meeting specifications
@@ -146,7 +101,6 @@ add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V
   }
   return(c(V1SynID, V1FileName, V1Variables, V2SynID, V2FileName, V2Variables ))
 }
-
 
 ```
 
@@ -219,6 +173,7 @@ MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  
 for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V1SynID & FileContents$volume == "V1",]$synID) {
   MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1SynID = i)
 }
+
 
 for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V2SynID & FileContents$volume == "V2",]$synID) {
   MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V2SynID = i)
@@ -360,6 +315,7 @@ toShow <- data.frame("Variable" = names(FileInformationPrivatized),
 
 
 ```
+
 A report of user name frequencies is generated and saved. Its data dictionary is below.
 
 kable(toShow, caption = "Report Description")
