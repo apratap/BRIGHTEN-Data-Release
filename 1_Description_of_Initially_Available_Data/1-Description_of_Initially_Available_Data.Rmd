@@ -44,10 +44,12 @@ synapseutils <- import('synapseutils')
 #File locations and directories
 DATADIRECTORY <- "../Data/"
 REPORTDIRECTORY <- "../Reports/Description of Initially Available Data/"
+WIKI <- paste(DATADIRECTORY,"WikiPages/", sep = "")
 
 dir.create(DATADIRECTORY)
 dir.create("../Reports/")
 dir.create(REPORTDIRECTORY)
+dir.create(WIKI)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
 
@@ -326,37 +328,52 @@ It has been requested to present initial data descriptions to the wiki. This cod
 
 ```{r}
 
+
+
 namedMatches <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
 
 for (i in 1:length(namedMatches)) {
+  
   temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
   
-  wiki1 <- data.frame("#" = 1:length(temp1),
-                      "Variable Name" = names(temp1),
-                      "Data Type" = sapply(temp1, class),
-                      check.names = FALSE)
-  
-  wiki1$Range <- NA
-  for( j in 1:nrow(wiki1)) {
-    if (wiki1[j,]$"Data Type" == "factor") {
-      if (length(levels(temp1[,j])) > 5 ) {
-        x <- length(levels(temp1[,j]))
-        wiki1[j,]$"Range" <- paste(as.character(levels(temp1[,j])[c(1,2,median(1:x),x-1,x)]), collapse = "\n ") 
-      }
-      if (length(levels(temp1[,j])) <= 5 ) {
-        wiki1[j,]$"Range" <- paste(as.character(levels(temp1[,j])), collapse = ", ") 
-      }
+  temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
+  sink(paste(WIKI,namedMatches[i],".txt", sep = ""))
+  for (j in c("temp1","temp2")) {
+    classes <- sapply(j,class)
+    for (k in 1:length(classes)) {
+      classes[k] <- classes[[k]][1]
     }
-    if (wiki1[j,]$"Data Type" != "factor") {
-      wiki1[j,]$"Range" <- paste(as.character(range(temp1[,j], na.rm = TRUE)),sep =  " - ", collapse = " - ")
-    }
-  }
-  
   
     
+    wiki <- data.frame("#" = 1:length(j),
+                        "Variable Name" = names(j),
+                        "Data Type" = unlist(classes),
+                        check.names = FALSE)
+    
+  
+    wiki$Range <- NA
+    for( k in 1:nrow(wiki)) {
+      if (wiki[k,]$"Data Type" == "factor") {
+        if (length(levels(j[,k])) > 5 ) {
+          x <- length(levels(j[,k]))
+          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])[c(1,2,median(1:x),x-1,x)]), collapse = "\n ") 
+        }
+        if (length(levels(j[,k])) <= 5 ) {
+          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])), collapse = ", ") 
+        }
+      }
+      if (wiki[k,]$"Data Type" != "factor") {
+        wiki[k,]$"Range" <- paste(as.character(range(j[,k], na.rm = TRUE)),sep =  " - ", collapse = " - ")
+      }    
+    kable(wiki)
+    }
+
+  sink()    
+  }
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   
   
 }
+
 ```
 

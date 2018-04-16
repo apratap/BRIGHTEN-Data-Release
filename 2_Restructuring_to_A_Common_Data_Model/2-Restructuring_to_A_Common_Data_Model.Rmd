@@ -56,15 +56,24 @@ SYNLOGIN <- synapseclient$login() #generate synology login token
 
 These are convienence functions for processees in this notebook. Functions common to working with synapse and our datda in general can be found in ../CustomFunctons.R
 
-# Loadin File Information
+# Loading File Information
 
-Records Generating in Chapter  1 are used to identify and organize files in the transformation step.
+Records Generated in Chapter 1 are used to identify and organize files in the transformation step.
 
 ```{r load_file_descriptions}
 MatchedRecords <- read.csv("../Reports/Description of Initially Available Data/MatchedRecords.csv")
+FileInformation <- read.csv("../Data/LocalFileInformation.csv")
 ```
 
 # Transformation Before Load
+
+Transformed tables will be stored in a new, flat, directory structure. 
+
+```{r making_local_directory tree}
+
+```
+
+## Passive Features
 
 
 
