@@ -333,17 +333,19 @@ It has been requested to present initial data descriptions to the wiki. This cod
 namedMatches <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
 
 for (i in 1:length(namedMatches)) {
-  
+  print(namedMatches[i])
   temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
   
   temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
-  sink(paste(WIKI,namedMatches[i],".txt", sep = ""))
+  #sink(paste(WIKI,namedMatches[i],".txt", sep = ""))
   for (j in c("temp1","temp2")) {
+    print(paste("step",j, sep = " "))
     classes <- sapply(j,class)
     for (k in 1:length(classes)) {
       classes[k] <- classes[[k]][1]
+      print(paste("stepA",k, sep = " "))
     }
-  
+
     
     wiki <- data.frame("#" = 1:length(j),
                         "Variable Name" = names(j),
@@ -353,6 +355,7 @@ for (i in 1:length(namedMatches)) {
   
     wiki$Range <- NA
     for( k in 1:nrow(wiki)) {
+      print(paste("stepB",k, sep = " "))
       if (wiki[k,]$"Data Type" == "factor") {
         if (length(levels(j[,k])) > 5 ) {
           x <- length(levels(j[,k]))
@@ -368,7 +371,7 @@ for (i in 1:length(namedMatches)) {
     kable(wiki)
     }
 
-  sink()    
+  #sink()    
   }
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   
