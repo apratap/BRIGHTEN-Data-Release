@@ -256,8 +256,6 @@ for (i in 1:(nrow(FileContents))) {
   if(maxTest > 0) {
     for(j in ids[-1]) {
       if (FileInformation[i, j] == maxTest) {
-        print(i)
-        print(j)
         FileInformation[i,]$userIDMeanObs <- mean(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
         FileInformation[i,]$userIDSD <- sd(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
       }
@@ -298,6 +296,8 @@ FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","bri
 #writefile showing frequencies
 write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
 
+write.csv(FileInformation, paste(DATADIRECTORY, "LocalFileInformation.csv", sep = ""))
+
 
 #create table to display data dictionary of report
 toShow <- data.frame("Variable" = names(FileInformationPrivatized),
@@ -319,3 +319,44 @@ toShow <- data.frame("Variable" = names(FileInformationPrivatized),
 A report of user name frequencies is generated and saved. Its data dictionary is below.
 
 kable(toShow, caption = "Report Description")
+
+# Generating Data Tables for Wiki
+
+It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?
+
+```{r}
+
+namedMatches <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
+
+for (i in 1:length(namedMatches)) {
+  temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
+  
+  wiki1 <- data.frame("#" = 1:length(temp1),
+                      "Variable Name" = names(temp1),
+                      "Data Type" = sapply(temp1, class),
+                      check.names = FALSE)
+  
+  wiki1$Range <- NA
+  for( j in 1:nrow(wiki1)) {
+    if (wiki1[j,]$"Data Type" == "factor") {
+      if (length(levels(temp1[,j])) > 5 ) {
+        x <- length(levels(temp1[,j]))
+        wiki1[j,]$"Range" <- paste(as.character(levels(temp1[,j])[c(1,2,median(1:x),x-1,x)]), collapse = "\n ") 
+      }
+      if (length(levels(temp1[,j])) <= 5 ) {
+        wiki1[j,]$"Range" <- paste(as.character(levels(temp1[,j])), collapse = ", ") 
+      }
+    }
+    if (wiki1[j,]$"Data Type" != "factor") {
+      wiki1[j,]$"Range" <- paste(as.character(range(temp1[,j], na.rm = TRUE)),sep =  " - ", collapse = " - ")
+    }
+  }
+  
+  
+    
+  #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
+  
+  
+}
+```
+

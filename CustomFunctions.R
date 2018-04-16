@@ -39,13 +39,13 @@ simple.content.listing <- function(VOL, INFO) {
 find.data <- function(path) {
   extension <- tools::file_ext(path)
   if(extension == "tsv"| extension == "txt") {
-    temp <-as.data.frame(fread(path)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+    temp <-as.data.frame(fread(path, stringsAsFactors = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
   }
   if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE, check.names = FALSE)
+    temp <- read.csv(path, header = TRUE, check.names = FALSE, stringsAsFactors = TRUE)
   }
   if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1)
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1, )
   }  
   if(!exists("temp")) {
     temp <- FALSE
