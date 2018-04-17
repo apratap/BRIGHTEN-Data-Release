@@ -42,7 +42,7 @@ find.data <- function(path) {
     temp <-as.data.frame(fread(path, stringsAsFactors = FALSE, check.names = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
   }
   if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE, check.names = FALSE, stringsAsFactors = TRUE, check.names = FALSE)
+    temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE)#, check.names = FALSE)
   }
   if(extension == "xls" | extension == "xlsx") {
     temp <- xlsx::read.xlsx(path, sheetIndex = 1 )

@@ -3,6 +3,8 @@ title: "1 - Description of Initially Available Data"
 output:
   html_document:
     df_print: paged
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r global_options, include=FALSE}
@@ -298,7 +300,7 @@ FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","bri
 #writefile showing frequencies
 write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
 
-write.csv(FileInformation, paste(DATADIRECTORY, "LocalFileInformation.csv", sep = ""))
+write.csv(FileInformation, paste(REPORTDIRECTORY, "LocalFileInformation.csv", sep = ""))
 
 
 #create table to display data dictionary of report
@@ -326,6 +328,7 @@ kable(toShow, caption = "Report Description")
 
 It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?
 
+
 ```{r}
 
 
@@ -334,16 +337,19 @@ namedMatches <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact"
 
 for (i in 1:length(namedMatches)) {
   print(namedMatches[i])
-  temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
+  #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
   
-  temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
-  #sink(paste(WIKI,namedMatches[i],".txt", sep = ""))
-  for (j in c("temp1","temp2")) {
-    print(paste("step",j, sep = " "))
+  #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
+  sink(paste("./Data/WikiPages/",namedMatches[i],".txt", sep = ""))
+  #for (j in c("temp1","temp2")) {
+  for (l in c("V1SynID","V2SynID")) {
+    #print(paste("step",j, sep = " "))
+    #j <- get(j)
+    j <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path))
     classes <- sapply(j,class)
     for (k in 1:length(classes)) {
       classes[k] <- classes[[k]][1]
-      print(paste("stepA",k, sep = " "))
+      #print(paste("stepA",k, sep = " "))
     }
 
     
@@ -355,7 +361,7 @@ for (i in 1:length(namedMatches)) {
   
     wiki$Range <- NA
     for( k in 1:nrow(wiki)) {
-      print(paste("stepB",k, sep = " "))
+      #print(paste("stepB",k, sep = " "))
       if (wiki[k,]$"Data Type" == "factor") {
         if (length(levels(j[,k])) > 5 ) {
           x <- length(levels(j[,k]))
@@ -368,15 +374,24 @@ for (i in 1:length(namedMatches)) {
       if (wiki[k,]$"Data Type" != "factor") {
         wiki[k,]$"Range" <- paste(as.character(range(j[,k], na.rm = TRUE)),sep =  " - ", collapse = " - ")
       }    
-    kable(wiki)
     }
+    wiki$Description <- NA
+    cat(paste("## ",
+                substring(l,1,2), 
+                " - ",
+                namedMatches[i], 
+                " Data Dictionary", 
+                sep = ""))
+    print(kable(wiki), format = "markdown", row.names = FALSE)
+    cat("\n<br> <br>\n\n")
 
-  #sink()    
+    
   }
+  sink()
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
-  
-  
 }
 
+
 ```
+
 
