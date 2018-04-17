@@ -132,6 +132,10 @@ $(document).ready(function () {
 <h1>Environment</h1>
 <p>Python and the Synapse python library will need to be setup in the environment. Other variables and R libraries are fully configured here. Enter your username and password for Synapse.org.</p>
 </div>
+<div id="load-local-functions" class="section level1">
+<h1>Load Local Functions</h1>
+<p>These are convienence functions for processees in this notebook. Functions common to working with synapse and our datda in general can be found in ../CustomFunctons.R</p>
+</div>
 <div id="extraction-from-synapse" class="section level1">
 <h1>Extraction from Synapse</h1>
 <p>The BRIGHTEN repository was loaded into a local project directory. This directory “../original/.” contains two subdirectories, one for each volume of data provided (“V1”, “V2”). We ultimately want to create a single unified volume but need an accurate description of the data in order to build an unified schema and data set.</p>
@@ -147,112 +151,60 @@ $(document).ready(function () {
 <p>kable(toShow, caption = “Report Description”)</p>
 <div id="reporting-files-and-number-of-observations" class="section level2">
 <h2>Reporting files and number of observations</h2>
-<pre><code>## [1] 1
-## [1] &quot;user_id&quot;
-## [1] 2
-## [1] &quot;user_id&quot;
-## [1] 3
-## [1] &quot;user_id&quot;
-## [1] 4
-## [1] &quot;user_id&quot;
-## [1] 5
-## [1] &quot;user_id&quot;
-## [1] 6
-## [1] &quot;user_id&quot;
-## [1] 7
-## [1] &quot;user_id&quot;
-## [1] 8
-## [1] &quot;user_id&quot;
-## [1] 9
-## [1] &quot;user_id&quot;
-## [1] 10
-## [1] &quot;user_id&quot;
-## [1] 11
-## [1] &quot;user_id&quot;
-## [1] 13
-## [1] &quot;user_id&quot;
-## [1] 14
-## [1] &quot;user_id&quot;
-## [1] 15
-## [1] &quot;user_id&quot;
-## [1] 16
-## [1] &quot;user_id&quot;
-## [1] 17
-## [1] &quot;user_id&quot;
-## [1] 18
-## [1] &quot;user_id&quot;
-## [1] 19
-## [1] &quot;user_id&quot;
-## [1] 20
-## [1] &quot;user_id&quot;
-## [1] 21
-## [1] &quot;user_id&quot;
-## [1] 22
-## [1] &quot;user_id&quot;
-## [1] 23
-## [1] &quot;user_id&quot;
-## [1] 24
-## [1] &quot;user_id&quot;
-## [1] 25
-## [1] &quot;user_id&quot;
-## [1] 26
-## [1] &quot;username&quot;
-## [1] 27
-## [1] &quot;username&quot;
-## [1] 28
-## [1] &quot;Response ID&quot;
-## [1] 29
-## [1] &quot;username&quot;
-## [1] 30
-## [1] &quot;username&quot;
-## [1] 31
-## [1] &quot;username&quot;
-## [1] 32
-## [1] &quot;username&quot;
-## [1] 33
-## [1] &quot;username&quot;
-## [1] 34
-## [1] &quot;username&quot;
-## [1] 35
-## [1] &quot;Username&quot;
-## [1] 37
-## [1] &quot;username&quot;
-## [1] 38
-## [1] &quot;Response ID&quot;
-## [1] 39
-## [1] &quot;Response ID&quot;
-## [1] 40
-## [1] &quot;username&quot;
-## [1] 41
-## [1] &quot;username&quot;
-## [1] 42
-## [1] &quot;username&quot;
-## [1] 43
-## [1] &quot;username&quot;
-## [1] 44
-## [1] &quot;username&quot;
-## [1] 45
-## [1] &quot;username&quot;
-## [1] 46
-## [1] &quot;username&quot;
-## [1] 47
-## [1] &quot;username&quot;
-## [1] 48
-## [1] &quot;username&quot;
-## [1] 49
-## [1] &quot;username&quot;
-## [1] 50
-## [1] &quot;Response ID&quot;
-## [1] 51
-## [1] &quot;Response ID&quot;
-## [1] 52
-## [1] &quot;username&quot;
-## [1] 53
-## [1] &quot;username&quot;
-## [1] 54
-## [1] &quot;username&quot;</code></pre>
 <p>A report of user name frequencies is generated and saved. Its data dictionary is below.</p>
 <p>kable(toShow, caption = “Report Description”)</p>
+</div>
+</div>
+<div id="generating-data-tables-for-wiki" class="section level1">
+<h1>Generating Data Tables for Wiki</h1>
+<p>It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?</p>
+<div id="v1---general-mental-health-data-dictionary" class="section level2">
+<h2>V1 - General Mental Health Data Dictionary</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Variable Name</th>
+<th align="left">Data Type</th>
+<th align="left">Range</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">brightenid</td>
+<td align="left">brightenid</td>
+<td align="left">factor</td>
+<td align="left">BLUE-00048</td>
+</tr>
+</tbody>
+</table>
+<p>BLUE-00049 ORANGE-00151 YELLOW-00262 YELLOW-00263 |NA | |start |start |Date |2014-07-14 - 2015-05-12 |NA | |week |week |numeric |0 - 12 |NA | |user_id |user_id |numeric |8605 - 69076 |NA | |sent_time_local |sent_time_local |factor |41879.375 41879.3750115741 42006.3754050926 42209.3751388889 nan |NA | |sent_time_utc |sent_time_utc |factor |41879.5416782407 41879.6666666667 42006.5840046296 42209.6668055556 nan |NA | |response_local |response_local |POSIXct |2014-07-15 09:10:33 - 2015-07-25 08:54:30 |NA | |response_utc |response_utc |POSIXct |2014-07-15 16:10:34 - 2015-07-25 15:54:30 |NA | |response_id |response_id |numeric |152214 - 864147 |NA | |Do.you.see.a.psychiatrist.for.mental.health.or.substance.abuse.treatment. |Do.you.see.a.psychiatrist.for.mental.health.or.substance.abuse.treatment. |factor |Decline, No, Yes |NA | |Do.you.see.a.psychologist..social.worker..or.other.counselor.for.mental.health.or.substance.abuse..treatment. |Do.you.see.a.psychologist..social.worker..or.other.counselor.for.mental.health.or.substance.abuse..treatment. |factor |Decline, No, Yes |NA | |Do.you.attend.any.groups.for.mental.health.or.substance.abuse.treatment. |Do.you.attend.any.groups.for.mental.health.or.substance.abuse.treatment. |factor |Decline, No, Yes |NA | |Are.you.reading.any.self.help.books.for.mental.health.or.substance.abuse.treatment. |Are.you.reading.any.self.help.books.for.mental.health.or.substance.abuse.treatment. |factor |Decline, No, Yes |NA | |Are.you.taking.any.medications.for.mental.health.problems. |Are.you.taking.any.medications.for.mental.health.problems. |factor |Decline, No, Yes |NA |</p>
+<p><br> <br></p>
+</div>
+<div id="v2---general-mental-health-data-dictionary" class="section level2">
+<h2>V2 - General Mental Health Data Dictionary</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Variable Name</th>
+<th align="left">Data Type</th>
+<th align="left">Range</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">username</td>
+<td align="left">username</td>
+<td align="left">factor</td>
+<td align="left">EN00035</td>
+</tr>
+</tbody>
+</table>
+<p>EN00040 EN00494 ES05059 ES05062 |NA | |Do you see a psychiatrist for mental health or substance abuse treatment? |Do you see a psychiatrist for mental health or substance abuse treatment? |factor |No, Rather not say, Yes |NA | |Do you see a psychologist, social worker, or other counselor for mental health or substance abuse treatment? |Do you see a psychologist, social worker, or other counselor for mental health or substance abuse treatment? |factor |No, Rather not say, Yes |NA | |Do you attend any groups for mental health or substance abuse treatment? |Do you attend any groups for mental health or substance abuse treatment? |factor |No, Rather not say, Yes |NA | |Are you reading any self-help books for mental health or substance abuse treatment? |Are you reading any self-help books for mental health or substance abuse treatment? |factor |No, Rather not say, Yes |NA | |Are you taking any medications for mental health problems? |Are you taking any medications for mental health problems? |factor |No, Rather not say, Yes |NA | |day |day |integer |1 - 4 |NA | |createdAt |createdAt |factor |2016-08-24 05:07:33 2016-08-24 15:50:19 2016-11-09 18:44:04 2017-03-30 12:45:15 2017-04-06 06:26:29 |NA |</p>
+<p><br> <br></p>
 </div>
 </div>
 

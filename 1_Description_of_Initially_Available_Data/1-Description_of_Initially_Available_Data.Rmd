@@ -329,7 +329,7 @@ kable(toShow, caption = "Report Description")
 It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 
 
 
@@ -365,7 +365,7 @@ for (i in 1:length(namedMatches)) {
       if (wiki[k,]$"Data Type" == "factor") {
         if (length(levels(j[,k])) > 5 ) {
           x <- length(levels(j[,k]))
-          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])[c(1,2,median(1:x),x-1,x)]), collapse = "\n ") 
+          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
         }
         if (length(levels(j[,k])) <= 5 ) {
           wiki[k,]$"Range" <- paste(as.character(levels(j[,k])), collapse = ", ") 
@@ -382,7 +382,7 @@ for (i in 1:length(namedMatches)) {
                 namedMatches[i], 
                 " Data Dictionary", 
                 sep = ""))
-    print(kable(wiki), format = "markdown", row.names = FALSE)
+    print(kable(wiki, caption = "test", row.names = FALSE))
     cat("\n<br> <br>\n\n")
 
     
@@ -393,5 +393,3 @@ for (i in 1:length(namedMatches)) {
 
 
 ```
-
-
