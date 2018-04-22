@@ -164,20 +164,26 @@ MatchedRecords <- data.frame(V1SynID = character(),
 
 
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_passive_features.tsv", V2FileName = "passivedata_brighten_v2.tsv")
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq2_scores.tsv", V2FileName = "phq2_brighten_v2.tsv")
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName = "gad-7.csv")             
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "healthapps_405.xls", V2FileName = "health app overview.csv")             
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName = "impact-mh.csv")   
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")        
-MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep.csv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep_brighten_v2.tsv")
 
 for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V1SynID & FileContents$volume == "V1",]$synID) {
   MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1SynID = i)
 }
-
 
 for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V2SynID & FileContents$volume == "V2",]$synID) {
   MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V2SynID = i)
@@ -333,53 +339,25 @@ It has been requested to present initial data descriptions to the wiki. This cod
 
 
 
-namedMatches <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
+namedMatched <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
 
-for (i in 1:length(namedMatches)) {
-  print(namedMatches[i])
+for (i in 1:length(namedMatched)) {
+  print(namedMatched[i])
   #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
-  
+  path <- paste("./Data/WikiPages/",namedMatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
-  sink(paste("./Data/WikiPages/",namedMatches[i],".txt", sep = ""))
+  sink(path)
   #for (j in c("temp1","temp2")) {
   for (l in c("V1SynID","V2SynID")) {
     #print(paste("step",j, sep = " "))
     #j <- get(j)
-    j <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path))
-    classes <- sapply(j,class)
-    for (k in 1:length(classes)) {
-      classes[k] <- classes[[k]][1]
-      #print(paste("stepA",k, sep = " "))
-    }
-
-    
-    wiki <- data.frame("#" = 1:length(j),
-                        "Variable Name" = names(j),
-                        "Data Type" = unlist(classes),
-                        check.names = FALSE)
-    
-  
-    wiki$Range <- NA
-    for( k in 1:nrow(wiki)) {
-      #print(paste("stepB",k, sep = " "))
-      if (wiki[k,]$"Data Type" == "factor") {
-        if (length(levels(j[,k])) > 5 ) {
-          x <- length(levels(j[,k]))
-          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
-        }
-        if (length(levels(j[,k])) <= 5 ) {
-          wiki[k,]$"Range" <- paste(as.character(levels(j[,k])), collapse = ", ") 
-        }
-      }
-      if (wiki[k,]$"Data Type" != "factor") {
-        wiki[k,]$"Range" <- paste(as.character(range(j[,k], na.rm = TRUE)),sep =  " - ", collapse = " - ")
-      }    
-    }
-    wiki$Description <- NA
+    #j <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path))
+    j <- as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path)
+    wiki <- build.wiki.data.description(j)
     cat(paste("## ",
                 substring(l,1,2), 
                 " - ",
-                namedMatches[i], 
+                namedMatched[i], 
                 " Data Dictionary", 
                 sep = ""))
     print(kable(wiki, caption = "test", row.names = FALSE))
@@ -390,6 +368,44 @@ for (i in 1:length(namedMatches)) {
   sink()
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
 }
+
+unmatchedFiles <- c("alcoholuse_403.xls","apps_399.xls","sds_brighten_v2.tsv","calls.csv","messages.csv")
+namedUnmatched <- c("Alchohol Use","Application Use", "Symptom Quality of Life", "Call Data", "Message Data")
+
+for (i in 1:length(namedUnmatched)) {
+  print(namedUnmatched[i])
+  #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
+  path <- paste("./Data/WikiPages/",namedUnmatched[i],".txt", sep = "")
+  #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
+  sink(path)
+  #for (j in c("temp1","temp2")) {
+  j <- as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$path)
+  wiki <- build.wiki.data.description(j)
+  cat(paste("## ",
+              namedUnmatched[i], 
+              " Data Dictionary", 
+              sep = ""))
+  print(kable(wiki, caption = "test", row.names = FALSE))
+  cat("\n<br> <br>\n\n")
+
+    
+  
+  sink()
+  #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
+}
+
+```
+
+#Building or Updating WIKI
+
+The folowing chunk will attempt to update the project wiki with the available text files, suing the name of ecah file as the name for tha page in the wiki.
+
+
+
+```{r}
+
+```
+
 
 
 ```

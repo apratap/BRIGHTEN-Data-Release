@@ -9,7 +9,7 @@ require(stringr) #parse strings
 
 #PRE string identifying volume label content, and synapse file description object (can be list)
 #POST data frame describing the variables in each file named in the synapse object.
-simple.content.listing <- function(VOL, INFO) {
+buie.simple.content.listing <- function(VOL, INFO) {
   output <- data.frame(volume = character(),
                        synID = character(),
                        path = character(),
@@ -53,3 +53,44 @@ find.data <- function(path) {
   return(temp)
 }
 
+
+#PRE: path to a file
+#POST: returns a data frame with decsriptions of each variable in the file
+build.wiki.data.description <- function(path) {
+
+  synoData <- find.data(path)
+  
+  #generate descriptions of each variable's data type
+  classes <- sapply(synoData,class)
+  for (j in 1:length(classes)) {
+    classes[j] <- classes[[j]][1]
+  }
+  
+  #create  data frame with each variable's descriptors
+  wiki <- data.frame("#" = 1:length(synoData),
+                     "Variable Name" = names(synoData),
+                     "Data Type" = unlist(classes),
+                     check.names = FALSE)
+  
+    
+  wiki$Range <- NA
+  for( wikiRows in 1:nrow(wiki)) {
+    #print(paste("stepB",wikiRows, sep = " "))
+    if (wiki[wikiRows,]$"Data Type" == "factor") {
+      if (length(levels(synoData[,wikiRows])) > 5 ) {
+        x <- length(levels(synoData[,wikiRows]))
+        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
+      }
+      if (length(levels(synoData[,wikiRows])) <= 5 ) {
+        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])), collapse = ", ") 
+      }
+    }
+    if (wiki[wikiRows,]$"Data Type" != "factor") {
+      wiki[wikiRows,]$"Range" <- paste(as.character(range(synoData[,wikiRows], na.rm = TRUE)),sep =  " - ", collapse = " - ")
+    }    
+  }
+  
+  wiki$Description <- NA
+  return(wiki)
+    
+}
