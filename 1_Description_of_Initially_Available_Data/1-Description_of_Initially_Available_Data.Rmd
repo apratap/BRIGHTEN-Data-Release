@@ -41,6 +41,12 @@ source("../CustomFunctions.R") #custom functions for working with synapse and ou
 #some libraries are used from python
 synapseclient <- import('synapseclient')
 synapseutils <- import('synapseutils') 
+Wiki <- synapseclient$Wiki
+File <- synapseclient$File
+Project <- synapseclient$Project
+Folder <- synapseclient$Folder
+
+
 
 #Constants
 #File locations and directories
@@ -360,8 +366,18 @@ for (i in 1:length(namedMatched)) {
                 namedMatched[i], 
                 " Data Dictionary", 
                 sep = ""))
+    cat("\n")
+    cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
+    cat("\n\n")
+              
+    wiki$Description <- NULL
     print(kable(wiki, caption = "test", row.names = FALSE))
-    cat("\n<br> <br>\n\n")
+    cat("\n<br> <br>\n")
+    cat("## Provenance \n\n")
+    cat(paste("${provenance?entityList=",
+            as.character(MatchedRecords[i,l]),
+            "&depth=1&showExpand=false}", 
+            sep = ""))
 
     
   }
@@ -370,11 +386,12 @@ for (i in 1:length(namedMatched)) {
 }
 
 unmatchedFiles <- c("alcoholuse_403.xls","apps_399.xls","sds_brighten_v2.tsv","calls.csv","messages.csv")
-namedUnmatched <- c("Alchohol Use","Application Use", "Symptom Quality of Life", "Call Data", "Message Data")
+namedUnmatched <- c("Alcohol Use","Application Use", "Symptom Quality of Life", "Calls", "Messaging")
 
 for (i in 1:length(namedUnmatched)) {
   print(namedUnmatched[i])
   #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
+  
   path <- paste("./Data/WikiPages/",namedUnmatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   sink(path)
@@ -385,8 +402,19 @@ for (i in 1:length(namedUnmatched)) {
               namedUnmatched[i], 
               " Data Dictionary", 
               sep = ""))
+  cat("\n")
+  cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
+  cat("\n\n")
+  
+  wiki$Description <- NULL
   print(kable(wiki, caption = "test", row.names = FALSE))
-  cat("\n<br> <br>\n\n")
+  cat("\n<br> <br>\n")
+  cat("## Provenance \n\n")
+  cat(paste("${provenance?entityList=",
+            as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$synID),
+            "&depth=1&showExpand=false}", 
+            sep = ""))
+  
 
     
   
@@ -400,9 +428,41 @@ for (i in 1:length(namedUnmatched)) {
 
 The folowing chunk will attempt to update the project wiki with the available text files, suing the name of ecah file as the name for tha page in the wiki.
 
+syn10848316 - project
 
 
 ```{r}
+
+workingProject <- "syn10848316"
+toUpload <- c(namedMatched,namedUnmatched)
+
+#delete current wiki
+wikiHeaders <-SYNLOGIN$getWikiHeaders(workingProject)
+SYNLOGIN$delete(obj = paste(workingProject,"/wiki/",wikiHeaders[[1]]$id, sep = ""))
+
+#create new wiki and record its ID
+wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Wiki", owner = workingProject)
+wikiHolder$markdown <- "This is automatically generated!"
+SYNLOGIN$store(wikiHolder)
+
+wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
+wikiTop <- wikiHeaders[[1]]$id
+
+wikiHolder <- synapseclient$wiki$Wiki(title = "Data Description", owner = workingProject, parentWikiId = wikiTop)
+SYNLOGIN$store(wikiHolder)
+
+wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
+wikiData <- wikiHeaders[[2]]$id
+#generate Data Description pages
+
+for(i in 1:length(toUpload)) {
+  #scan(paste("./Data/WikiPages/",toUpload[i],".txt", sep = ""))
+  wikiMarkdown <- paste(readLines(paste("./Data/WikiPages/",toUpload[i],".txt", sep = "")), collapse = "\n")
+  wikiHolder <- synapseclient$wiki$Wiki(title = paste(i, " - ", toUpload[i], sep = ""), owner = workingProject, parentWikiId = wikiData, markdown = wikiMarkdown)
+  SYNLOGIN$store(wikiHolder)
+}
+
+
 
 ```
 

@@ -64,6 +64,10 @@ build.wiki.data.description <- function(path) {
   classes <- sapply(synoData,class)
   for (j in 1:length(classes)) {
     classes[j] <- classes[[j]][1]
+    #Change "POSIXct" to "date" in data type listing
+    #if (classes[j] == "POSIXct") {
+    #  classes[j] <- "Date"
+    #}
   }
   
   #create  data frame with each variable's descriptors
@@ -72,7 +76,6 @@ build.wiki.data.description <- function(path) {
                      "Data Type" = unlist(classes),
                      check.names = FALSE)
   
-    
   wiki$Range <- NA
   for( wikiRows in 1:nrow(wiki)) {
     #print(paste("stepB",wikiRows, sep = " "))
