@@ -426,7 +426,7 @@ for (i in 1:length(namedUnmatched)) {
 
 #Building or Updating WIKI
 
-The folowing chunk will attempt to update the project wiki with the available text files, suing the name of ecah file as the name for tha page in the wiki.
+The folowing chunk will attempt to rebuild the project wiki with the available text files, using the name of ecah file as the name for tha page in the wiki.
 
 syn10848316 - project
 
@@ -441,18 +441,23 @@ wikiHeaders <-SYNLOGIN$getWikiHeaders(workingProject)
 SYNLOGIN$delete(obj = paste(workingProject,"/wiki/",wikiHeaders[[1]]$id, sep = ""))
 
 #create new wiki and record its ID
-wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Wiki", owner = workingProject)
-wikiHolder$markdown <- "This is automatically generated!"
+wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Public Researcher Portal", owner = workingProject)
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
 wikiTop <- wikiHeaders[[1]]$id
 
+wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = workingProject, parentWikiId = wikiTop)
+SYNLOGIN$store(wikiHolder)
+
+wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = workingProject, parentWikiId = wikiTop)
+SYNLOGIN$store(wikiHolder)
+
 wikiHolder <- synapseclient$wiki$Wiki(title = "Data Description", owner = workingProject, parentWikiId = wikiTop)
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
-wikiData <- wikiHeaders[[2]]$id
+wikiData <- wikiHeaders[[4]]$id
 #generate Data Description pages
 
 for(i in 1:length(toUpload)) {
@@ -462,10 +467,12 @@ for(i in 1:length(toUpload)) {
   SYNLOGIN$store(wikiHolder)
 }
 
-
-
 ```
+the above pages should be enhanced to include study information? or should that be elsehwere?
 
 
+other potential wiki pages
 
-```
+accessing brighten data
+
+
