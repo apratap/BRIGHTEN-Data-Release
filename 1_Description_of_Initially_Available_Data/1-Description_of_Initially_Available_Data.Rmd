@@ -353,6 +353,13 @@ for (i in 1:length(namedMatched)) {
   path <- paste("./Data/WikiPages/",namedMatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   sink(path)
+  
+  #Print Front Matter
+  if (file.exists(paste("./Data/WikiPages/Texts/",namedMatched[i],".txt", sep = ""))) {
+    cat(paste(readLines(paste("./Data/WikiPages/Texts/",namedMatched[i],".txt", sep = "")), collapse = "\n"))
+    cat("\n\n")
+  }
+  
   #for (j in c("temp1","temp2")) {
   for (l in c("V1SynID","V2SynID")) {
     #print(paste("step",j, sep = " "))
@@ -360,13 +367,17 @@ for (i in 1:length(namedMatched)) {
     #j <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path))
     j <- as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,l]),]$path)
     wiki <- build.wiki.data.description(j)
+    
+    
     cat(paste("## ",
                 substring(l,1,2), 
                 " - ",
                 namedMatched[i], 
                 " Data Dictionary", 
                 sep = ""))
+    
     cat("\n")
+    
     cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
     cat("\n\n")
               
@@ -378,7 +389,7 @@ for (i in 1:length(namedMatched)) {
             as.character(MatchedRecords[i,l]),
             "&depth=1&showExpand=false}", 
             sep = ""))
-
+    cat("\n")
     
   }
   sink()
@@ -395,14 +406,23 @@ for (i in 1:length(namedUnmatched)) {
   path <- paste("./Data/WikiPages/",namedUnmatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   sink(path)
+  
+    #Print Top Matter
+  if (file.exists(paste("./Data/WikiPages/Texts/",namedUnmatched[i],".txt", sep = ""))) {
+    cat(paste(readLines(paste("./Data/WikiPages/Texts/",namedUnmatched[i],".txt", sep = "")), collapse = "\n"))
+    cat("\n\n")
+  }
   #for (j in c("temp1","temp2")) {
   j <- as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$path)
   wiki <- build.wiki.data.description(j)
+  
   cat(paste("## ",
               namedUnmatched[i], 
               " Data Dictionary", 
               sep = ""))
+  
   cat("\n")
+
   cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
   cat("\n\n")
   
@@ -414,6 +434,7 @@ for (i in 1:length(namedUnmatched)) {
             as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$synID),
             "&depth=1&showExpand=false}", 
             sep = ""))
+  cat("\n")
   
 
     
@@ -442,28 +463,30 @@ SYNLOGIN$delete(obj = paste(workingProject,"/wiki/",wikiHeaders[[1]]$id, sep = "
 
 #create new wiki and record its ID
 wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Public Researcher Portal", owner = workingProject)
+wikiHolder$markdown <- paste(readLines("./Data/WikiPages/Texts/Front.txt"), collapse = "\n")
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
 wikiTop <- wikiHeaders[[1]]$id
 
-wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = workingProject, parentWikiId = wikiTop)
-SYNLOGIN$store(wikiHolder)
+#wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = workingProject, parentWikiId = wikiTop)
+#SYNLOGIN$store(wikiHolder)
 
-wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = workingProject, parentWikiId = wikiTop)
-SYNLOGIN$store(wikiHolder)
+#wikiHolder <- synapseclient$wiki$Wiki(title = "Accessing Data", owner = #workingProject, parentWikiId = wikiTop)
+#SYNLOGIN$store(wikiHolder)
 
 wikiHolder <- synapseclient$wiki$Wiki(title = "Data Description", owner = workingProject, parentWikiId = wikiTop)
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
-wikiData <- wikiHeaders[[4]]$id
+wikiData <- wikiHeaders[[2]]$id
 #generate Data Description pages
 
 for(i in 1:length(toUpload)) {
+  print(toUpload[i])
   #scan(paste("./Data/WikiPages/",toUpload[i],".txt", sep = ""))
   wikiMarkdown <- paste(readLines(paste("./Data/WikiPages/",toUpload[i],".txt", sep = "")), collapse = "\n")
-  wikiHolder <- synapseclient$wiki$Wiki(title = paste(i, " - ", toUpload[i], sep = ""), owner = workingProject, parentWikiId = wikiData, markdown = wikiMarkdown)
+  wikiHolder <- synapseclient$wiki$Wiki(title = paste(toUpload[i], sep = ""), owner = workingProject, parentWikiId = wikiData, markdown = wikiMarkdown)
   SYNLOGIN$store(wikiHolder)
 }
 
