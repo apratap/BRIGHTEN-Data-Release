@@ -329,7 +329,6 @@ toShow <- data.frame("Variable" = names(FileInformationPrivatized),
                       stringsAsFactors = FALSE,
                      check.names = FALSE)
 
-
 ```
 
 A report of user name frequencies is generated and saved. Its data dictionary is below.
@@ -343,7 +342,12 @@ It has been requested to present initial data descriptions to the wiki. This cod
 
 ```{r eval=FALSE, include=FALSE}
 
-
+sink("./Data/WikiPages/Data Description.txt")
+  cat("\n")
+  cat("## Data Frequency and Availability \n")
+  print(kable(FileInformationPrivatized, row.names = FALSE))
+  cat("\n")
+sink()
 
 namedMatched <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
 
@@ -476,6 +480,11 @@ wikiTop <- wikiHeaders[[1]]$id
 #SYNLOGIN$store(wikiHolder)
 
 wikiHolder <- synapseclient$wiki$Wiki(title = "Data Description", owner = workingProject, parentWikiId = wikiTop)
+
+wikiHolder$markdown <- paste(readLines("./Data/WikiPages/Data Description.txt"), collapse = "\n")
+
+#wikiHolder$markdown <- paste("\n",kable(FileInformationPrivatized, row.names = FALSE), "\n", sep = "", collapse = "" )
+
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
