@@ -9,7 +9,7 @@ require(stringr) #parse strings
 
 #PRE string identifying volume label content, and synapse file description object (can be list)
 #POST data frame describing the variables in each file named in the synapse object.
-buie.simple.content.listing <- function(VOL, INFO) {
+simple.content.listing <- function(VOL, INFO) {
   output <- data.frame(volume = character(),
                        synID = character(),
                        path = character(),

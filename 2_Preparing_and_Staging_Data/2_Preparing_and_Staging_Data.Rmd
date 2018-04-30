@@ -1,0 +1,371 @@
+---
+title: "2 Preparing and Staging Data"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE,
+                      cache = FALSE)
+
+
+```
+
+# Summary
+
+Only certain files from our original data are desired. These will be moved to a staging area for further work.
+
+Files names will be unified across the repository in order to make their presentation consistent for clients. 
+
+# Environment
+
+Python and the Synapse python library will need to be setup in the environment. Other variables and R libraries are fully configured here. Enter your username and password for Synapse.org.
+
+```{r Setting Environment}
+#Needed Libraries 
+# Setup loop to check in library is installed....
+#library(synapser) #Synapse API
+#library(knitr) #command line option in compiling notebook
+#library(tools)
+#library(xlsx) #read xmls files
+#library(data.table) 
+#library(reticulate) #Python integration into R studio
+#library(stringr) #parse strings
+source("../CustomFunctions.R")
+
+#library(PythonInR) #required to use some of sysapse API
+
+#some libraries are used from python
+synapseclient <- import('synapseclient')
+synapseutils <- import('synapseutils') 
+
+#Constants
+#File locations and directories
+DATADIRECTORY <- "../Data/"
+STAGINGAREA <- paste(DATADIRECTORY, "New/", sep = "")
+REPORTDIRECTORY <- "../Reports/2_Preparing_and_Staging_Data/"
+
+dir.create(DATADIRECTORY)
+dir.create(STAGINGAREA)
+dir.create("../Reports/")
+dir.create(REPORTDIRECTORY)
+
+SYNLOGIN <- synapseclient$login() #generate synology login token
+```
+
+# Load Local Functions
+
+These are convienence functions for processees in this notebook. Functions common to working with synapse and our datda in general can be found in ../CustomFunctons.R
+
+```{r}
+
+```
+
+# Loading File Information
+
+Records Generated in Chapter 1 are used to identify and organize files in this step.
+
+```{r load_file_descriptions}
+getwd()
+MatchedRecords <- read.csv("../Reports/1_Description_of_Initially_Available_Data/LocalMatchedRecords.csv", stringsAsFactors = FALSE)
+
+FileInformation <- read.csv("../Reports/1_Description_of_Initially_Available_Data/LocalFileInformation.csv", stringsAsFactors = FALSE)
+
+```
+
+## Passive Features
+
+brighten_v1_passive_features.tsv
+passivedata_brighten_v2.tsv
+
+```{r load_passive_features_data}
+#exract
+V1 <- find.data(MatchedRecords[1,]$V1Path)
+V2 <- find.data(MatchedRecords[1,]$V2Path)
+
+#Transform
+#These two data frames appear to be substantially different. 
+#It is not clear how call duration in the V1 file might be transformed to the hours provided in the V2 file.
+#It is not clear how the sms length from V1 might be reconciled to the text length received, and text length sent vairables from V2
+#The same is true for call duration
+#It is not clear if/how missed interactions in V1 might be build from Call duration missed from V2
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_Passive_Features.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_Passive_Features.csv", sep = ""))
+```
+
+## PHQ-2
+
+brighten_v1_phq2_scores.tsv
+phq2_brighten_v2.tsv
+
+```{r load_PHQ2_data}
+#Extract
+V1 <- find.data(MatchedRecords[2,]$V1Path)
+V2 <- find.data(MatchedRecords[2,]$V2Path)
+
+#Transform
+#No changes were made. Is it valuable to align username variable? This seems like it risk losing information if th enaming of the variable was consistant and meaningful in V1
+
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_PHQ2.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_PHQ2.csv", sep = ""))
+```
+
+## PHQ-9
+brighten_v1_phq9_scores.tsv
+phq9_brighten_v2.tsv
+
+```{r load_PHQ9_data}
+#Extract
+V1 <- find.data(MatchedRecords[3,]$V1Path)
+V2 <- find.data(MatchedRecords[3,]$V2Path)
+
+#Transform
+# It is not clear if any more work needs to be done here. These look aligned
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_PHQ9.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_PHQ9.csv", sep = ""))
+```
+
+## Study Metadata
+brighten_v1_study_metadata.tsv
+final_mdata_20180105172418-surveyexport_edited_apratap.txt
+
+```{r load_Study_Metadata}
+#Extract
+V1 <- find.data(MatchedRecords[4,]$V1Path)
+V2 <- find.data(MatchedRecords[4,]$V2Path)
+
+#Transform
+# These are somewhatdifferent data, but where overlapping, already aligned. It is unlclear if further transformations are desired (some variables have missmatched capitalization, and race could be abstracted into alignmen,t bu towuld be a lossy process.
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_MetaData.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_MetaData.csv", sep = ""))
+
+```
+
+## Energy Levels
+
+energylevels_404.xls
+
+```{r load_Energy_Levels}
+
+#Extract
+V1 <- find.data(MatchedRecords[5,]$V1Path)
+#V2 <- find.data(MatchedRecords[5,]$V2Path)
+
+#Transform
+
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_EnergyLevels.csv", sep = ""))
+#write.csv(V2 , paste(DATADIRECTORY, "New/V2_EnergyLevels.csv", sep = ""))
+
+```
+
+## GAD-7
+gad7_402.xls
+
+```{r load_GAD-7}
+#Extract
+V1 <- find.data(MatchedRecords[6,]$V1Path)
+#V2 <- find.data(MatchedRecords[6,]$V2Path)
+
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_GAD7.csv", sep = ""))
+#write.csv(V2 , paste(DATADIRECTORY, "New/V2_GAD7.csv", sep = ""))
+
+```
+
+## Health Apps
+healthapps_405.xls
+
+```{r load_Health_apps}
+
+#Extract
+V1 <- find.data(MatchedRecords[7,]$V1Path)
+#V2 <- find.data(MatchedRecords[7,]$V2Path)
+
+#Transform
+#This places the full question as the variable name. There i sno other source of the question data, so I am hesitant to shorten these
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_HealthApps.csv", sep = ""))
+#write.csv(V2 , paste(DATADIRECTORY, "New/V2_HealthApps.csv", sep = ""))
+
+```
+
+## Mental Health Services
+mentalhealthservices_400.xls
+impact-mh.csv
+
+```{r load_Mental_Health_Services}
+#Extract
+V1 <- find.data(MatchedRecords[8,]$V1Path)
+V2 <- find.data(MatchedRecords[8,]$V2Path)
+
+#Transform
+#These appear to be aligned wher ematching data are available
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_MentalHealthSvc.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_MentalHealthSvc.csv", sep = ""))
+
+```
+
+
+## Mood Assessment
+moodassessment_407.xls
+
+```{r load_mood_assessment}
+#Extract
+V1 <- find.data(MatchedRecords[9,]$V1Path)
+#V2 <- find.data(MatchedRecords[9,]$V2Path)
+
+#Transform
+
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_MoodAssessment.csv", sep = ""))
+#write.csv(V2 , paste(DATADIRECTORY, "New/V2_MoodAssessment.csv", sep = ""))
+
+```
+
+
+## Sleep
+sleep_406.xls
+sleep_brighten_v2.tsv
+sleep.csv
+
+```{r load_sleep}
+#Extract
+V1 <- find.data(MatchedRecords[10,]$V1Path)
+V2 <- find.data(MatchedRecords[10,]$V2Path)
+V2 <- find.data(FileInformation[FileInformation$fileName == "sleep.csv",]$path)
+
+#Transform
+#These were different surveys. The more precise one, V1, could be abstracted to match V2, but this would be lossy
+#sleep.csv contains the full questionsand an extra variable "day" which I assume to be day in study, but is otherwise the same as sleep_brighten_v2.tsv. It is not clear what solution is desired here, but both were requested in the "files to keep"
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_Sleep.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_sleep.csv", sep = ""))
+
+```
+
+
+## Alchohol Use
+alcoholuse_403.xls
+
+```{r load_alchohol_use}
+
+#Extract
+V1 <- find.data(FileInformation[FileInformation$fileName == "alcoholuse_403.xls",]$path)
+
+#Transform
+#It is not clear what is being measures here or if any change is necessary
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_AlchoholUse.csv", sep = ""))
+
+
+```
+
+
+## Apps
+apps_399.xls
+
+```{r load_apps}
+
+#Extract
+V1 <- find.data(FileInformation[FileInformation$fileName == "apps_399.xls",]$path)
+
+#Transform
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_Apps.csv", sep = ""))
+
+
+```
+
+## Apps Satisfaction
+ppsatisfaction_408.xls
+
+```{r load_apps_satisfaction}
+#Extract
+V1 <- find.data(FileInformation[FileInformation$fileName == "appsatisfaction_408.xls",]$path)
+
+#Transform
+#It might be worthwhile to change Yes/No to 1/0, but this depends on downstream use.... opinion?
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_AppsSatisfaction.csv", sep = ""))
+
+
+```
+
+## SDS
+qualityoflife_401.xls
+sds_brighten_v2.tsv
+
+```{r load_Sheehan_Disability_Scale}
+#Extract
+V1 <- find.data(FileInformation[FileInformation$fileName == "qualityoflife_401.xls",]$path)
+V2 <- find.data(FileInformation[FileInformation$fileName == "sds_brighten_v2.tsv",]$path)
+
+#Transform
+#Aligning Variable Names from V1 to match V2
+names(V1)[10] <- "sds_1"
+names(V1)[11] <- "sds_2"
+names(V1)[12] <- "sds_3"
+names(V1)[13] <- "In the last week, how much were you set back by stressful events or personal problems such as work, home, social, health, or financial problems?"
+names(V1)[14] <- "In the past week, how much support have you received from friends, relatives, co-workers, etc., as a percentage of the amount you needed to cope?"
+#it is not clear if V1's sds is equal to V2s sds_score or sds_hod
+#Some of the V2 ones are missing usernames, should they be deleted or is there hope of restoring this information?
+
+#Load
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_SDS.csv", sep = ""))
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_SDS.csv", sep = ""))
+
+
+```
+
+## GPS Agg
+gps_agg_brighten_v2.tsv
+
+```{r load_GPS_Agg}
+#Extract
+V2 <- find.data(FileInformation[FileInformation$fileName == "gps_agg_brighten_v2.tsv",]$path)
+
+#Transform
+#Some of these are missing usernames, should they be deleted or is there hope of restoring this information?
+
+#Load
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_GPSAgg.csv", sep = ""))
+
+
+```
+
+## GPS Features
+gps_features_brighten_v2.tsv
+
+```{r load_GPS_Features}
+#Extract
+V2 <- find.data(FileInformation[FileInformation$fileName == "gps_features_brighten_v2.tsv",]$path)
+
+#Transform
+#Some of these are missing usernames, should they be deleted or is there hope of restoring this information?
+
+#Load
+write.csv(V2 , paste(DATADIRECTORY, "New/V2_GPSFeatures.csv", sep = ""))
+
+
+```
+
