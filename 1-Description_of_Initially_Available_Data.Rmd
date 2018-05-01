@@ -34,7 +34,7 @@ library(xlsx) #read xmls files
 library(data.table) 
 library(reticulate) #Python integration into R studio
 library(stringr) #parse strings
-source("../CustomFunctions.R") #custom functions for working with synapse and our data
+source("./CustomFunctions.R") #custom functions for working with synapse and our data
 
 #library(PythonInR) #required to use some of sysapse API
 
@@ -50,13 +50,12 @@ Folder <- synapseclient$Folder
 
 #Constants
 #File locations and directories
-DATADIRECTORY <- "../Data/"
-REPORTDIRECTORY <- "../Reports/1_Description_of_Initially_Available_Data/"
+DATADIRECTORY <- "./Data/"
+REPORTDIRECTORY <- "./Reports/1_"
 WIKI <- paste(DATADIRECTORY,"WikiPages/", sep = "")
 
 dir.create(DATADIRECTORY)
-dir.create("../Reports/")
-dir.create(REPORTDIRECTORY)
+dir.create("./Reports/")
 dir.create(WIKI)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
@@ -193,6 +192,8 @@ MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")       
 
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep_brighten_v2.tsv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents,  V1FileName = "qualityoflife_401.xls", V2FileName =  "sds_brighten_v2.tsv")
 
 
 
@@ -350,7 +351,7 @@ kable(toShow, caption = "Report Description")
 It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?
 
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 
 #generate description of overal volume of data for top of data information wiki subpages
 sink("./Data/WikiPages/Data Description.txt")
