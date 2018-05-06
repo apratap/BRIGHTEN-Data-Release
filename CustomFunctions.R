@@ -45,7 +45,7 @@ find.data <- function(path) {
     temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE)
   }
   if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1 )
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE)
   }  
   if(!exists("temp")) {
     temp <- FALSE
@@ -79,21 +79,49 @@ build.wiki.data.description <- function(path) {
   wiki$Range <- NA
   for( wikiRows in 1:nrow(wiki)) {
     #print(paste("stepB",wikiRows, sep = " "))
-    if (wiki[wikiRows,]$"Data Type" == "factor") {
-      if (length(levels(synoData[,wikiRows])) > 5 ) {
-        x <- length(levels(synoData[,wikiRows]))
-        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
+    if (!all(is.na(synoData[,wikiRows]))) {
+      if (wiki[wikiRows,]$"Data Type" == "factor") {
+        if (length(levels(synoData[,wikiRows])) > 5 ) {
+          x <- length(levels(synoData[,wikiRows]))
+          wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
+        }
+        if (length(levels(synoData[,wikiRows])) <= 5 ) {
+          wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])), collapse = ", ") 
+        }
       }
-      if (length(levels(synoData[,wikiRows])) <= 5 ) {
-        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])), collapse = ", ") 
+      if (wiki[wikiRows,]$"Data Type" != "factor") {
+        wiki[wikiRows,]$"Range" <- paste(as.character(range(synoData[,wikiRows], na.rm = TRUE)),sep =  " - ", collapse = " - ")
       }
     }
-    if (wiki[wikiRows,]$"Data Type" != "factor") {
-      wiki[wikiRows,]$"Range" <- paste(as.character(range(synoData[,wikiRows], na.rm = TRUE)),sep =  " - ", collapse = " - ")
-    }    
+    if (all(is.na(synoData[,wikiRows]))) { wiki[wikiRows,]$Range <- "NA" }
   }
   
   wiki$Description <- NA
   return(wiki)
     
 }
+
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V1Path = NA, V2Path = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
+  if(is.na(V1SynID) & !is.na(V1FileName)) {
+    V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
+  }
+  if(is.na(V2SynID) & !is.na(V2FileName)) {
+    V2SynID <- MasterList[MasterList$fileName == V2FileName,]$synID  
+  }
+  if(is.na(V1FileName) & !is.na(V1SynID)) {
+    V1FileName <- MasterList[MasterList$synID == V1SynID,]$fileName
+  }
+  if(is.na(V2FileName) & !is.na(V2SynID)) {
+    V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
+  }
+  if(!is.na(V1SynID)) {
+    V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
+    V1Path <- MasterList[MasterList$synID == V1SynID,]$path
+  }
+  if(!is.na(V2SynID)) {
+    V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
+    V2Path <- MasterList[MasterList$synID == V2SynID,]$path
+  }
+  return(c(V1SynID, V1FileName, V1Path, V1Variables, V2SynID, V2FileName, V2Path, V2Variables ))
+}
+

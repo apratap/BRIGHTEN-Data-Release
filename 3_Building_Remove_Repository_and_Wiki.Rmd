@@ -1,8 +1,10 @@
 ---
-title: "3 Building Remote Repository and Wiki"
+title: "3 - Building Remote Repository and Wiki"
 output:
   html_document:
     df_print: paged
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r global_options, include=FALSE}
@@ -26,7 +28,7 @@ Python and the Synapse python library will need to be setup in the environment. 
 #Needed Libraries 
 # Setup loop to check in library is installed....
 #library(synapser) #Synapse API
-#library(knitr) #command line option in compiling notebook
+library(knitr) #command line option in compiling notebook
 #library(tools)
 #library(xlsx) #read xmls files
 #library(data.table) 
@@ -44,8 +46,11 @@ synapseutils <- import('synapseutils')
 #File locations and directories
 DATADIRECTORY <- "./Data/"
 STAGINGAREA <- paste(DATADIRECTORY, "New/", sep = "")
-REPORTDIRECTORY <- "./Reports/3_"
 
+REPORTDIRECTORY <- "./Reports/3_"
+WIKI <- paste(DATADIRECTORY,"WikiPagesNew/", sep = "")
+
+dir.create(WIKI)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
 ```
@@ -55,6 +60,7 @@ SYNLOGIN <- synapseclient$login() #generate synology login token
 ```{r}
 
 #build a manifest
+unlink(paste(STAGINGAREA,"synapse_metadata_manifest.tsv",sep=""), force= TRUE)
 listedFiles <- list.files("./Data/New/")
 listedFiles <- paste("./Data/New/", listedFiles, sep= "")
 Manifest <- data.frame(path = as.character(listedFiles),
@@ -74,31 +80,169 @@ synapseutils$sync$syncToSynapse(SYNLOGIN, manifestFile = paste(REPORTDIRECTORY, 
 
 syn10848316 - project
 
-```{r}
+```{r build_file_descriptions}
+
+repositoryFiles <- synapseutils$syncFromSynapse(SYNLOGIN, entity = "syn10848316", path = paste(STAGINGAREA, sep = "") )
+```
+
+```{r describing file columns}
+
+FileContents <- simple.content.listing("V1", repositoryFiles)
+FileContents[substr(FileContents$fileName,1,2) == "v2",]$volume <- "V2"
+
+MatchedRecords <- data.frame(V1SynID = character(),
+                          V1FileName = character(),
+                          V1Path = character(),
+                          V1Variables = character(),
+                          V2SynID = character(),
+                          V2FileName = character(),
+                          V2Path = character(),
+                          V2Variables = character(),
+                          stringsAsFactors = FALSE)
+
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName =  "v1_metadata.csv", V2FileName = "v2_metadata.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName = "v1_passive_features.csv", V2FileName = "v2_passive_features.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents,V1FileName =   "v1_mentalhealthsvc.csv",V2FileName = "v2_mentalhealthsvc.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName = "v1_phq2.csv",V2FileName = "v2_phq2.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName = "v1_phq9.csv", V2FileName = "v2_phq9.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName = "v1_sds.csv", V2FileName = "v2_sds.csv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1FileName = "v1_sleep.csv", V2FileName = "v2_sleep.csv")
+
+
+
+
+FileInformation <- FileContents
+#ceate new columns as indicator variables fo rthe existense of each ID variable type
+ids <- c("brightenid","userid","username","responseid")
+for (i in ids) {
+  FileInformation[,i] <- 0
+}
+
+#assign indicator of 0 or 1
+for(i in ids) {
+  for(j in 1:nrow(FileInformation)) {
+    if(str_detect(FileInformation[j,"variables"], i)) {
+      FileInformation[j,i] <- 1
+    }
+  }
+}
+
+#add a column to total unique observations in data
+FileInformation$uniqueObservations <- 0
+FileInformation$N <- 0
+
+#laod data and, if indicator is 1, replace it with how many unique observations were made of that variable, count number of totally unique rows
+for (i in 1:nrow(FileInformation)) {
+
+  retrievedData <- find.data(FileInformation[i,]$path)
+  FileInformation[i,]$uniqueObservations <- nrow(unique(retrievedData))
+  FileInformation[i,]$N <- nrow(retrievedData)
+  for (IDName in ids) {
+    if (FileInformation[i,IDName] == 1) {
+      FileInformation[i,IDName] <- length(unique(retrievedData[,IDName]))
+
+    }
+
+  }
+}
+
+
+
+#calculate mean number of observations per user and the SD
+FileInformation$brightenidSD <- 0
+FileInformation$useridSD <- 0
+FileInformation$brightenidMeanObs <- 0
+FileInformation$useridMeanObs <- 0
+
+for (i in 1:(nrow(FileContents))) {
+  temp <- find.data(FileInformation[i,]$path)
+  maxTest <- max(FileInformation[i,ids[-1]])
+  if(maxTest > 0) {
+    for(j in ids[-1]) {
+      if (FileInformation[i, j] == maxTest) {
+        FileInformation[i,]$useridMeanObs <- mean(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
+        FileInformation[i,]$useridSD <- sd(aggregate(list(temp[,j]), list(paste(temp[,j])), FUN = length)[[2]], na.rm = TRUE)
+      }
+    }
+  }
+  if (FileInformation[i,"brightenid"] > 0) {
+    temp <- find.data(FileInformation[i,]$path)
+    FileInformation[i,]$brightenidMeanObs <- mean(aggregate(paste(brightenid)~brightenid, temp, length)[[2]], na.rm=TRUE)
+    FileInformation[i,]$brightenidSD <- sd(aggregate(paste(brightenid)~brightenid, temp, length)[[2]], na.rm = TRUE)
+  }
+}
+
+
+
+
+#Merge User Count columns
+FileInformation$userid <- apply(FileInformation[,c("username","responseid", "userid")],1, "max")
+
+#formatting SD
+FileInformation$brightenidCI <- NA
+FileInformation$useridCI <- NA
+FileInformation$brightenidMeanSD <- paste(round(FileInformation$brightenidMeanObs),
+                                      " ± ",
+                                      round(FileInformation$brightenidSD),
+                                      sep = "")
+
+FileInformation$useridMeanSD <- paste(round(FileInformation$useridMeanObs),
+                                  " ± ",
+                                  round(FileInformation$useridSD), 
+                                  sep = "")
+
+
+#Dont show these:
+# "path","variables","user_id","username","Username","Response ID"
+
+FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","brightenid","userid","N","useridMeanSD","brightenidMeanSD")]
+
+#writefile showing frequencies
+#write.csv(FileInformationPrivatized, paste(REPORTDIRECTORY, "FileInformation.csv", sep = ""))   
+
+#write.csv(FileInformation, paste(REPORTDIRECTORY, "LocalFileInformation.csv", sep = ""))
+
+
+```
+
+
+
+
+
+```{r write wiki}
 
 
 
 #generate description of overal volume of data for top of data information wiki subpages
-sink("./Data/WikiPages/Data Description.txt")
+{
+  sink(paste(WIKI,"Data Description.txt", sep = ""))
   cat("\n")
   cat("## Data Frequency and Availability \n")
   print(kable(FileInformationPrivatized, row.names = FALSE))
   cat("\n")
-sink()
+  sink()
+}
 
 #list of filenames/data types to create wiki pages for
-namedMatched <- c("Passive Features","PHQ-2","PHQ-9","Study Metadata","QoL Impact","GAD-7","Health App","General Mental Health","PGIC","Sleep")
+namedMatched <- c("Metadata","Passive Features", "Mental Health Services", "PHQ-2", "PHQ-9", "SDS", "Sleep")
 
 for (i in 1:length(namedMatched)) {
   print(namedMatched[i])
   #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
-  path <- paste("./Data/WikiPages/",namedMatched[i],".txt", sep = "")
+  path <- paste("./Data/WikiPagesNew/",namedMatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   sink(path)
   
   #Print Front Matter
-  if (file.exists(paste("./Data/WikiPages/Texts/",namedMatched[i],".txt", sep = ""))) {
-    cat(paste(readLines(paste("./Data/WikiPages/Texts/",namedMatched[i],".txt", sep = "")), collapse = "\n"))
+  if (file.exists(paste("./Data/WikiPagesNew/Texts/",namedMatched[i],".txt", sep = ""))) {
+    cat(paste(readLines(paste("./Data/WikiPagesNew/Texts/",namedMatched[i],".txt", sep = "")), collapse = "\n"))
     cat("\n\n")
   }
   
@@ -138,24 +282,24 @@ for (i in 1:length(namedMatched)) {
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
 }
 
-unmatchedFiles <- c("alcoholuse_403.xls","apps_399.xls","sds_brighten_v2.tsv","calls.csv","messages.csv")
-namedUnmatched <- c("Alcohol Use","Application Use", "Symptom Quality of Life", "Calls", "Messaging")
+unmatchedFiles <- c("v1_alchoholuse.csv","v1_apps.csv","v1_appssatisfaction.csv", "v1_energylevels.csv", "v1_healthapps.csv", "v1_moodassessment.csv", "v2_gpsagg.csv", "v2_gpsfeatures.csv")
+namedUnmatched <- c("Alcohol Use", "Applications", "Satisfaction Survey", "Energy Levels", "Health Applications", "Mood Assessment", "GPS Agg.", "GPS Features")
 
 for (i in 1:length(namedUnmatched)) {
   print(namedUnmatched[i])
   #temp1 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V1SynID"]),]$path))
   
-  path <- paste("./Data/WikiPages/",namedUnmatched[i],".txt", sep = "")
+  path <- paste("./Data/WikiPagesNew/",namedUnmatched[i],".txt", sep = "")
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
   sink(path)
   
     #Print Top Matter
-  if (file.exists(paste("./Data/WikiPages/Texts/",namedUnmatched[i],".txt", sep = ""))) {
-    cat(paste(readLines(paste("./Data/WikiPages/Texts/",namedUnmatched[i],".txt", sep = "")), collapse = "\n"))
+  if (file.exists(paste("./Data/WikiPagesNew/Texts/",namedUnmatched[i],".txt", sep = ""))) {
+    cat(paste(readLines(paste("./Data/WikiPagesNew/Texts/",namedUnmatched[i],".txt", sep = "")), collapse = "\n"))
     cat("\n\n")
   }
   #for (j in c("temp1","temp2")) {
-  j <- as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$path)
+  j <- as.character(FileContents[FileContents$fileName == unmatchedFiles[i],]$path)
   wiki <- build.wiki.data.description(j)
   
   cat(paste("## ",
@@ -165,7 +309,7 @@ for (i in 1:length(namedUnmatched)) {
   
   cat("\n")
 
-  cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
+  cat(paste("(", basename(j), " - ", as.character(FileContents[FileContents$fileName == unmatchedFiles[i],]$synID),")", sep = ""))
   cat("\n\n")
   
   wiki$Description <- NULL
@@ -188,7 +332,7 @@ for (i in 1:length(namedUnmatched)) {
 ```
 
 
-```{r}
+```{r tear_down_re_upload_wiki}
 
 workingProject <- "syn10848316"
 toUpload <- c(namedMatched,namedUnmatched)
@@ -199,7 +343,7 @@ SYNLOGIN$delete(obj = paste(workingProject,"/wiki/",wikiHeaders[[1]]$id, sep = "
 
 #create new wiki and record its ID
 wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Public Researcher Portal", owner = workingProject)
-wikiHolder$markdown <- paste(readLines("./Data/WikiPages/Texts/Front.txt"), collapse = "\n")
+wikiHolder$markdown <- paste(readLines("./Data/WikiPagesNew/Texts/Front.txt"), collapse = "\n")
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
@@ -213,7 +357,7 @@ wikiTop <- wikiHeaders[[1]]$id
 
 wikiHolder <- synapseclient$wiki$Wiki(title = "Data Description", owner = workingProject, parentWikiId = wikiTop)
 
-wikiHolder$markdown <- paste(readLines("./Data/WikiPages/Data Description.txt"), collapse = "\n")
+wikiHolder$markdown <- paste(readLines("./Data/WikiPagesNew/Data Description.txt"), collapse = "\n")
 
 #wikiHolder$markdown <- paste("\n",kable(FileInformationPrivatized, row.names = FALSE), "\n", sep = "", collapse = "" )
 
@@ -226,7 +370,7 @@ wikiData <- wikiHeaders[[2]]$id
 for(i in 1:length(toUpload)) {
   print(toUpload[i])
   #scan(paste("./Data/WikiPages/",toUpload[i],".txt", sep = ""))
-  wikiMarkdown <- paste(readLines(paste("./Data/WikiPages/",toUpload[i],".txt", sep = "")), collapse = "\n")
+  wikiMarkdown <- paste(readLines(paste("./Data/WikiPagesNew/",toUpload[i],".txt", sep = "")), collapse = "\n")
   wikiHolder <- synapseclient$wiki$Wiki(title = paste(toUpload[i], sep = ""), owner = workingProject, parentWikiId = wikiData, markdown = wikiMarkdown)
   SYNLOGIN$store(wikiHolder)
 }
