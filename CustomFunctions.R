@@ -39,13 +39,13 @@ simple.content.listing <- function(VOL, INFO) {
 find.data <- function(path) {
   extension <- tools::file_ext(path)
   if(extension == "tsv"| extension == "txt") {
-    temp <-as.data.frame(fread(path, stringsAsFactors = TRUE, check.names = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+    temp <-as.data.frame(fread(path, stringsAsFactors = TRUE, check.names = FALSE, na.strings=c(""," ","NA"))) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
   }
   if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE)
+    temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE, na.strings=c(""," ","NA"))
   }
   if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE)
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE, na.strings=c(""," ","NA"))
   }  
   if(!exists("temp")) {
     temp <- FALSE
@@ -76,29 +76,43 @@ build.wiki.data.description <- function(path) {
                      "Data Type" = unlist(classes),
                      check.names = FALSE)
   
-  wiki$Range <- NA
+  wiki$Description <- NA
   for( wikiRows in 1:nrow(wiki)) {
     #print(paste("stepB",wikiRows, sep = " "))
     if (!all(is.na(synoData[,wikiRows]))) {
-      if (wiki[wikiRows,]$"Data Type" == "factor") {
-        if (length(levels(synoData[,wikiRows])) > 5 ) {
+      if (wiki[wikiRows,]$"Data Type" != "factor") {
+      synoData[,wikiRows] <- as.factor(synoData[,wikiRows])
+        if (length(levels(synoData[,wikiRows])) > 11 ) {
           x <- length(levels(synoData[,wikiRows]))
-          wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
+          #wiki[wikiRows,]$"Description" <- paste("format { }, range {'",paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = "', '"), "'}", sep = "")
+          wiki[wikiRows,]$"Description" <- paste("integer, range {'",paste(as.character(levels(synoData[,wikiRows])[c(1,x)]), collapse = "' ... '"), "'}", sep = "")
+          
         }
-        if (length(levels(synoData[,wikiRows])) <= 5 ) {
-          wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])), collapse = ", ") 
+        if (length(levels(synoData[,wikiRows])) <= 11 ) {
+          wiki[wikiRows,]$"Description" <- paste("one of {'",paste(as.character(levels(synoData[,wikiRows])), collapse = "', '"), "'}", sep = "")
         }
       }
-      if (wiki[wikiRows,]$"Data Type" != "factor") {
-        wiki[wikiRows,]$"Range" <- paste(as.character(range(synoData[,wikiRows], na.rm = TRUE)),sep =  " - ", collapse = " - ")
+      if (wiki[wikiRows,]$"Data Type" == "factor") {
+        wiki[wikiRows,]$"Description" <- wiki[wikiRows,]$"Description" <- paste("one of {'",paste(as.character(levels(synoData[,wikiRows])), collapse = "', '"), "'}", sep = "")
+        if (wiki[wikiRows,]$`Variable Name` == "timestamp") {
+          wiki[wikiRows,]$Description <- "Time Stamp; format [YYYY-MM-DD HH:MM:SS]"          
+        }
+        if (wiki[wikiRows,]$`Variable Name` == "date") {
+          wiki[wikiRows,]$Description <- "Date; format [YYYY-MM-DD]"          
+        }
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "brightenid") {
+        wiki[wikiRows,]$Description <- "Unique ID; format [AAAA-#####]"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "userid") {
+        wiki[wikiRows,]$Description <- "Unique ID; format [uid#####]"
       }
     }
+
     if (all(is.na(synoData[,wikiRows]))) { wiki[wikiRows,]$Range <- "NA" }
   }
-  
-  wiki$Description <- NA
+  wiki$`Data Type` = NULL
   return(wiki)
-    
 }
 
 add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V1Path = NA, V2Path = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
