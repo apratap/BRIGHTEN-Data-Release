@@ -270,20 +270,14 @@ for (i in 1:length(namedMatched)) {
     wiki$Description <- NULL
     print(kable(wiki, caption = "test", row.names = FALSE))
     cat("\n<br> <br>\n")
-    cat("## Provenance \n\n")
-    cat(paste("${provenance?entityList=",
-            as.character(MatchedRecords[i,l]),
-            "&depth=1&showExpand=false}", 
-            sep = ""))
-    cat("\n")
     
   }
   sink()
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
 }
 
-unmatchedFiles <- c("v1_alchoholuse.csv","v1_apps.csv","v1_appssatisfaction.csv", "v1_energylevels.csv", "v1_healthapps.csv", "v1_moodassessment.csv", "v2_gpsagg.csv", "v2_gpsfeatures.csv")
-namedUnmatched <- c("Alcohol Use", "Applications", "Satisfaction Survey", "Energy Levels", "Health Applications", "Mood Assessment", "GPS Agg.", "GPS Features")
+unmatchedFiles <- c("v1_alchoholuse.csv","v1_apps.csv","v1_appssatisfaction.csv", "v1_energylevels.csv", "v1_healthapps.csv", "v1_moodassessment.csv", "v2_gpsfeatures.csv")
+namedUnmatched <- c("Alcohol Use", "Applications", "Satisfaction Survey", "Energy Levels", "Health Applications", "Mood Assessment", "GPS Features")
 
 for (i in 1:length(namedUnmatched)) {
   print(namedUnmatched[i])
@@ -315,12 +309,6 @@ for (i in 1:length(namedUnmatched)) {
   wiki$Description <- NULL
   print(kable(wiki, caption = "test", row.names = FALSE))
   cat("\n<br> <br>\n")
-  cat("## Provenance \n\n")
-  cat(paste("${provenance?entityList=",
-            as.character(FileInformation[FileInformation$fileName == unmatchedFiles[i],]$synID),
-            "&depth=1&showExpand=false}", 
-            sep = ""))
-  cat("\n")
   
 
     
