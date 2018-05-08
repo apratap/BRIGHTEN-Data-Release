@@ -219,13 +219,17 @@ FileInformationPrivatized <- FileInformation[,c("volume","synID","fileName","bri
 ```{r write wiki}
 
 
+FileInformationWiki <- FileInformationPrivatized
+
+names(FileInformationWiki) <- c("Volume", "SynID", "File Name", "brightenid Freq", "userid Freq", "Observation Freq", "Mean Obs. Per userid", "Mean Obs. Per brightenid")
+FileInformationWiki <- FileInformationWiki[,c(1,2,3,6,4,8,5,7)]
 
 #generate description of overal volume of data for top of data information wiki subpages
 {
   sink(paste(WIKI,"Data Description.txt", sep = ""))
   cat("\n")
   cat("## Data Frequency and Availability \n")
-  print(kable(FileInformationPrivatized, row.names = FALSE))
+  print(kable(FileInformationWiki, row.names = FALSE))
   cat("\n")
   sink()
 }
@@ -267,7 +271,7 @@ for (i in 1:length(namedMatched)) {
     cat(paste("(", basename(j), " - ", as.character(MatchedRecords[i,l]),")", sep = ""))
     cat("\n\n")
               
-    wiki$Description <- NULL
+
     print(kable(wiki, caption = "test", row.names = FALSE))
     cat("\n<br> <br>\n")
     
@@ -306,7 +310,6 @@ for (i in 1:length(namedUnmatched)) {
   cat(paste("(", basename(j), " - ", as.character(FileContents[FileContents$fileName == unmatchedFiles[i],]$synID),")", sep = ""))
   cat("\n\n")
   
-  wiki$Description <- NULL
   print(kable(wiki, caption = "test", row.names = FALSE))
   cat("\n<br> <br>\n")
   

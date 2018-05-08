@@ -437,6 +437,7 @@ V1 <- find.data(FileInformation[FileInformation$fileName == "alcoholuse_403.xls"
 #Transform
 #fix usernames
 V1 <- clean.user.names(V1)
+
 #It is not clear what is being measures here or if any change is necessary
 
 #Load
@@ -457,6 +458,9 @@ V1 <- find.data(FileInformation[FileInformation$fileName == "apps_399.xls",]$pat
 #Transform
 #fix usernames
 V1 <- clean.user.names(V1)
+#rename answer
+names(V1)[3] <- "otherapps_1"
+
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_Apps.csv", sep = ""), row.names = FALSE)

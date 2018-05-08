@@ -114,6 +114,9 @@ build.wiki.data.description <- function(path) {
       if (wiki[wikiRows,]$`Variable Name` == "happ_1") {
         wiki[wikiRows,]$Description <- "multiple of {'for brain health', 'for fun', 'for management of daily problems', 'for mental health reasons', 'for mood', 'to improve relationships', 'to improve work', 'other'}"
       }
+      if (wiki[wikiRows,]$`Variable Name` == "otherapps_1") {
+        wiki[wikiRows,]$Description <- "multiple of {'Weight management', 'Medical', 'Exercise / fitness', 'Sleep', 'Pain management', 'Relaxation', 'Alcohol', 'Mood', 'Concentration'}"
+      }
       if (wiki[wikiRows,]$`Variable Name` == "happ_2"
           | wiki[wikiRows,]$`Variable Name` == "satis_1") {
         wiki[wikiRows,]$Description <- "[free text]"
