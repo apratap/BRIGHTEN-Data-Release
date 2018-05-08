@@ -9,7 +9,7 @@ require(stringr) #parse strings
 
 #PRE string identifying volume label content, and synapse file description object (can be list)
 #POST data frame describing the variables in each file named in the synapse object.
-buie.simple.content.listing <- function(VOL, INFO) {
+simple.content.listing <- function(VOL, INFO) {
   output <- data.frame(volume = character(),
                        synID = character(),
                        path = character(),
@@ -39,13 +39,13 @@ buie.simple.content.listing <- function(VOL, INFO) {
 find.data <- function(path) {
   extension <- tools::file_ext(path)
   if(extension == "tsv"| extension == "txt") {
-    temp <-as.data.frame(fread(path, stringsAsFactors = TRUE, check.names = FALSE)) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
+    temp <-as.data.frame(fread(path, stringsAsFactors = TRUE, check.names = FALSE, na.strings=c(""," ","NA"))) #read.table(INFO[[i]]$path, sep = "\t",  header = TRUE)
   }
   if(extension == "csv") {
-    temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE)
+    temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE, na.strings=c(""," ","NA"))
   }
   if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1 )
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE)
   }  
   if(!exists("temp")) {
     temp <- FALSE
@@ -76,24 +76,80 @@ build.wiki.data.description <- function(path) {
                      "Data Type" = unlist(classes),
                      check.names = FALSE)
   
-  wiki$Range <- NA
+  wiki$Description <- NA
   for( wikiRows in 1:nrow(wiki)) {
     #print(paste("stepB",wikiRows, sep = " "))
-    if (wiki[wikiRows,]$"Data Type" == "factor") {
-      if (length(levels(synoData[,wikiRows])) > 5 ) {
-        x <- length(levels(synoData[,wikiRows]))
-        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = ", ") 
+    if (!all(is.na(synoData[,wikiRows]))) {
+      if (wiki[wikiRows,]$"Data Type" != "factor") {
+      synoData[,wikiRows] <- as.factor(synoData[,wikiRows])
+        if (length(levels(synoData[,wikiRows])) > 11 ) {
+          x <- length(levels(synoData[,wikiRows]))
+          #wiki[wikiRows,]$"Description" <- paste("format { }, range {'",paste(as.character(levels(synoData[,wikiRows])[c(1,2,median(1:x),x-1,x)]), collapse = "', '"), "'}", sep = "")
+          wiki[wikiRows,]$"Description" <- paste("integer, range {'",paste(as.character(levels(synoData[,wikiRows])[c(1,x)]), collapse = "' ... '"), "'}", sep = "")
+          
+        }
+        if (length(levels(synoData[,wikiRows])) <= 11 ) {
+          wiki[wikiRows,]$"Description" <- paste("one of {'",paste(as.character(levels(synoData[,wikiRows])), collapse = "', '"), "'}", sep = "")
+        }
       }
-      if (length(levels(synoData[,wikiRows])) <= 5 ) {
-        wiki[wikiRows,]$"Range" <- paste(as.character(levels(synoData[,wikiRows])), collapse = ", ") 
+      if (wiki[wikiRows,]$"Data Type" == "factor") {
+        wiki[wikiRows,]$"Description" <- wiki[wikiRows,]$"Description" <- paste("one of {'",paste(as.character(levels(synoData[,wikiRows])), collapse = "', '"), "'}", sep = "")
+        if (wiki[wikiRows,]$`Variable Name` == "timestamp") {
+          wiki[wikiRows,]$Description <- "Time stamp; format [YYYY-MM-DD HH:MM:SS]"          
+        }
+        if (wiki[wikiRows,]$`Variable Name` == "timestampUTC") {
+          wiki[wikiRows,]$Description <- "Time stamp UTC time; format [YYYY-MM-DD HH:MM:SS]"          
+        }
+
+        if (wiki[wikiRows,]$`Variable Name` == "date") {
+          wiki[wikiRows,]$Description <- "Date; format [YYYY-MM-DD]"          
+        }
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "brightenid") {
+        wiki[wikiRows,]$Description <- "Unique ID; format [AAAA-#####]"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "userid") {
+        wiki[wikiRows,]$Description <- "Unique ID; format [uid#####]"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "happ_1") {
+        wiki[wikiRows,]$Description <- "multiple of {'for brain health', 'for fun', 'for management of daily problems', 'for mental health reasons', 'for mood', 'to improve relationships', 'to improve work', 'other'}"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "otherapps_1") {
+        wiki[wikiRows,]$Description <- "multiple of {'Weight management', 'Medical', 'Exercise / fitness', 'Sleep', 'Pain management', 'Relaxation', 'Alcohol', 'Mood', 'Concentration'}"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "happ_2"
+          | wiki[wikiRows,]$`Variable Name` == "satis_1") {
+        wiki[wikiRows,]$Description <- "[free text]"
       }
     }
-    if (wiki[wikiRows,]$"Data Type" != "factor") {
-      wiki[wikiRows,]$"Range" <- paste(as.character(range(synoData[,wikiRows], na.rm = TRUE)),sep =  " - ", collapse = " - ")
-    }    
+
+    if (all(is.na(synoData[,wikiRows]))) { wiki[wikiRows,]$Range <- "NA" }
   }
-  
-  wiki$Description <- NA
+  wiki$`Data Type` = NULL
   return(wiki)
-    
 }
+
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V1Path = NA, V2Path = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
+  if(is.na(V1SynID) & !is.na(V1FileName)) {
+    V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
+  }
+  if(is.na(V2SynID) & !is.na(V2FileName)) {
+    V2SynID <- MasterList[MasterList$fileName == V2FileName,]$synID  
+  }
+  if(is.na(V1FileName) & !is.na(V1SynID)) {
+    V1FileName <- MasterList[MasterList$synID == V1SynID,]$fileName
+  }
+  if(is.na(V2FileName) & !is.na(V2SynID)) {
+    V2FileName <- MasterList[MasterList$synID == V2SynID,]$fileName
+  }
+  if(!is.na(V1SynID)) {
+    V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
+    V1Path <- MasterList[MasterList$synID == V1SynID,]$path
+  }
+  if(!is.na(V2SynID)) {
+    V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
+    V2Path <- MasterList[MasterList$synID == V2SynID,]$path
+  }
+  return(c(V1SynID, V1FileName, V1Path, V1Variables, V2SynID, V2FileName, V2Path, V2Variables ))
+}
+

@@ -34,7 +34,7 @@ library(xlsx) #read xmls files
 library(data.table) 
 library(reticulate) #Python integration into R studio
 library(stringr) #parse strings
-source("../CustomFunctions.R") #custom functions for working with synapse and our data
+source("./CustomFunctions.R") #custom functions for working with synapse and our data
 
 #library(PythonInR) #required to use some of sysapse API
 
@@ -50,13 +50,12 @@ Folder <- synapseclient$Folder
 
 #Constants
 #File locations and directories
-DATADIRECTORY <- "../Data/"
-REPORTDIRECTORY <- "../Reports/Description of Initially Available Data/"
+DATADIRECTORY <- "./Data/"
+REPORTDIRECTORY <- "./Reports/1_"
 WIKI <- paste(DATADIRECTORY,"WikiPages/", sep = "")
 
 dir.create(DATADIRECTORY)
-dir.create("../Reports/")
-dir.create(REPORTDIRECTORY)
+dir.create("./Reports/")
 dir.create(WIKI)
 
 SYNLOGIN <- synapseclient$login() #generate synology login token
@@ -90,7 +89,7 @@ custom.counter <- function(VOL, SID, DESC, USERS, DF) {
 
 #PRE: formated filecontents data frame, two synIDs or file names.
 #POST: a list containing the synID, file name, and variables for each file
-add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
+add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V1Path = NA, V2Path = NA, V2FileName = NA, V1Variables = NA, V2Variables = NA){
   if(is.na(V1SynID) & !is.na(V1FileName)) {
     V1SynID <- MasterList[MasterList$fileName == V1FileName,]$synID
   }
@@ -105,11 +104,13 @@ add.match <- function(MasterList, V1SynID = NA, V2SynID = NA, V1FileName = NA, V
   }
   if(!is.na(V1SynID)) {
     V1Variables <- MasterList[MasterList$synID == V1SynID,]$variables
+    V1Path <- MasterList[MasterList$synID == V1SynID,]$path
   }
   if(!is.na(V2SynID)) {
     V2Variables <- MasterList[MasterList$synID == V2SynID,]$variables
+    V2Path <- MasterList[MasterList$synID == V2SynID,]$path
   }
-  return(c(V1SynID, V1FileName, V1Variables, V2SynID, V2FileName, V2Variables ))
+  return(c(V1SynID, V1FileName, V1Path, V1Variables, V2SynID, V2FileName, V2Path, V2Variables ))
 }
 
 ```
@@ -138,6 +139,8 @@ FileContents <- rbind(FileContents, simple.content.listing("V2", V2Information))
  
 write.csv(FileContents[,!(names(FileContents) %in% "path")], paste(REPORTDIRECTORY, "OriginalFileContents.csv", sep = ""))   
 
+write.csv(FileContents, paste(REPORTDIRECTORY, "LocalOriginalFileContents.csv", sep = "")) 
+
 toShow <- data.frame("Variable" = names(FileContents),
                      "Data Type" = as.character(sapply(FileContents, typeof)),
                      "Description" = c("Study volume indicator",
@@ -159,9 +162,11 @@ kable(toShow, caption = "Report Description")
 ```{r}
 MatchedRecords <- data.frame(V1SynID = character(),
                           V1FileName = character(),
+                          V1Path = character(),
                           V1Variables = character(),
                           V2SynID = character(),
                           V2FileName = character(),
+                          V2Path = character(),
                           V2Variables = character(),
                           stringsAsFactors = FALSE)
 
@@ -175,7 +180,7 @@ MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  
 
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_phq9_scores.tsv", V2FileName = "phq9_brighten_v2.tsv")
 
-MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "mdata_brighten_v2.tsv")
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "brighten_v1_study_metadata.tsv", V2FileName = "final_mdata_20180105172418-surveyexport_edited_apratap.txt")
 
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "energylevels_404.xls", V2FileName = "impact.csv")          
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "gad7_402.xls", V2FileName = "gad-7.csv")             
@@ -184,8 +189,13 @@ MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  
 
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "mentalhealthservices_400.xls", V2FileName = "impact-mh.csv")   
 
-MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")        
+MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "moodassessment_407.xls", V2FileName = "pgic.csv")       
+
 MatchedRecords[nrow(MatchedRecords)+1,]<- add.match(FileContents, V1FileName =  "sleep_406.xls", V2FileName = "sleep_brighten_v2.tsv")
+
+MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents,  V1FileName = "qualityoflife_401.xls", V2FileName =  "sds_brighten_v2.tsv")
+
+
 
 for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V1SynID & FileContents$volume == "V1",]$synID) {
   MatchedRecords[nrow(MatchedRecords)+1,] <- add.match(FileContents, V1SynID = i)
@@ -196,7 +206,7 @@ for (i in   FileContents[FileContents$synID %!in% MatchedRecords$V2SynID & FileC
 }
 
 #write matches to file for sharing
-write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = ""))   
+write.csv(MatchedRecords, paste(REPORTDIRECTORY, "LocalMatchedRecords.csv", sep = ""))   
 
 
 #create table to display data dictionary of report
@@ -204,14 +214,15 @@ toShow <- data.frame("Variable" = names(MatchedRecords),
                      "Data Type" = as.character(sapply(MatchedRecords, typeof)),
                      "Description" = c("Synology ID of file from V1",
                                         "Name of file from V1",
+                                       "Path of file from V1",
                                        "List of V1 File's Varaibles",
                                         "Synology ID of file from V2",
                                         "Name of file from V2",
+                                       "Path of file from V2",
                                        "List of V2 File's Variables"),
                       stringsAsFactors = FALSE,
                      check.names = FALSE)
 
-write.csv(MatchedRecords, paste(REPORTDIRECTORY, "MatchedRecords.csv", sep = ""))  
 
 ```
 
@@ -340,8 +351,9 @@ kable(toShow, caption = "Report Description")
 It has been requested to present initial data descriptions to the wiki. This code outputs text for copying and pasting into the Synapse Wiki. If possible automated routines for creating the wiki pages should be used instead?
 
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 
+#generate description of overal volume of data for top of data information wiki subpages
 sink("./Data/WikiPages/Data Description.txt")
   cat("\n")
   cat("## Data Frequency and Availability \n")
@@ -349,7 +361,8 @@ sink("./Data/WikiPages/Data Description.txt")
   cat("\n")
 sink()
 
-namedMatched <- c("Passive Features","PHQ2","PHQ9","Study Metadata","QoL Impact","GAD7","Health App","General Mental Health","PGIC","Sleep")
+#list of filenames/data types to create wiki pages for
+namedMatched <- c("Passive Features","PHQ-2","PHQ-9","Study Metadata","QoL Impact","GAD-7","Health App","General Mental Health","PGIC","Sleep")
 
 for (i in 1:length(namedMatched)) {
   print(namedMatched[i])
@@ -500,6 +513,7 @@ for(i in 1:length(toUpload)) {
 }
 
 ```
+
 the above pages should be enhanced to include study information? or should that be elsehwere?
 
 

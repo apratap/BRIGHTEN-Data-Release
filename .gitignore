@@ -7,3 +7,4 @@ ron_working_notes.Rmd
 *.nb.html
 Reports/
 storage bin
+local*.csv
