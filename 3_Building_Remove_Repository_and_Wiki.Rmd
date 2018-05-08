@@ -335,6 +335,8 @@ SYNLOGIN$delete(obj = paste(workingProject,"/wiki/",wikiHeaders[[1]]$id, sep = "
 #create new wiki and record its ID
 wikiHolder <- synapseclient$wiki$Wiki(title = "BRIGHTEN Study Public Researcher Portal", owner = workingProject)
 wikiHolder$markdown <- paste(readLines("./Data/WikiPagesNew/Texts/Front.txt"), collapse = "\n")
+getwd()
+wikiHolder$attachments <- as.list( images)
 SYNLOGIN$store(wikiHolder)
 
 wikiHeaders <- SYNLOGIN$getWikiHeaders(workingProject)
