@@ -45,7 +45,7 @@ find.data <- function(path) {
     temp <- read.csv(path, header = TRUE, stringsAsFactors = TRUE, check.names = FALSE, na.strings=c(""," ","NA"))
   }
   if(extension == "xls" | extension == "xlsx") {
-    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE, na.strings=c(""," ","NA"))
+    temp <- xlsx::read.xlsx(path, sheetIndex = 1 , check.names = FALSE)
   }  
   if(!exists("temp")) {
     temp <- FALSE
@@ -95,8 +95,12 @@ build.wiki.data.description <- function(path) {
       if (wiki[wikiRows,]$"Data Type" == "factor") {
         wiki[wikiRows,]$"Description" <- wiki[wikiRows,]$"Description" <- paste("one of {'",paste(as.character(levels(synoData[,wikiRows])), collapse = "', '"), "'}", sep = "")
         if (wiki[wikiRows,]$`Variable Name` == "timestamp") {
-          wiki[wikiRows,]$Description <- "Time Stamp; format [YYYY-MM-DD HH:MM:SS]"          
+          wiki[wikiRows,]$Description <- "Time stamp; format [YYYY-MM-DD HH:MM:SS]"          
         }
+        if (wiki[wikiRows,]$`Variable Name` == "timestampUTC") {
+          wiki[wikiRows,]$Description <- "Time stamp UTC time; format [YYYY-MM-DD HH:MM:SS]"          
+        }
+
         if (wiki[wikiRows,]$`Variable Name` == "date") {
           wiki[wikiRows,]$Description <- "Date; format [YYYY-MM-DD]"          
         }
@@ -106,6 +110,13 @@ build.wiki.data.description <- function(path) {
       }
       if (wiki[wikiRows,]$`Variable Name` == "userid") {
         wiki[wikiRows,]$Description <- "Unique ID; format [uid#####]"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "happ_1") {
+        wiki[wikiRows,]$Description <- "multiple of {'for brain health', 'for fun', 'for management of daily problems', 'for mental health reasons', 'for mood', 'to improve relationships', 'to improve work', 'other'}"
+      }
+      if (wiki[wikiRows,]$`Variable Name` == "happ_2"
+          | wiki[wikiRows,]$`Variable Name` == "satis_1") {
+        wiki[wikiRows,]$Description <- "[free text]"
       }
     }
 

@@ -276,8 +276,8 @@ for (i in 1:length(namedMatched)) {
   #temp2 <- find.data(as.character(FileInformation[FileInformation$synID == as.character(MatchedRecords[i,"V2SynID"]),]$path))
 }
 
-unmatchedFiles <- c("v1_alchoholuse.csv","v1_apps.csv","v1_appssatisfaction.csv", "v1_energylevels.csv", "v1_healthapps.csv", "v1_moodassessment.csv", "v2_gpsfeatures.csv")
-namedUnmatched <- c("Alcohol Use", "Applications", "Satisfaction Survey", "Energy Levels", "Health Applications", "Mood Assessment", "GPS Features")
+unmatchedFiles <- c("v1_alchoholuse.csv","v1_apps.csv","v1_appssatisfaction.csv", "v1_mhealthscreen.csv", "v1_healthapps.csv", "v1_moodassessment.csv", "v2_gpsfeatures.csv")
+namedUnmatched <- c("Alcohol Use", "Applications", "Satisfaction Survey", "Mental Health Screening", "Health Applications", "Mood Assessment", "GPS Features")
 
 for (i in 1:length(namedUnmatched)) {
   print(namedUnmatched[i])

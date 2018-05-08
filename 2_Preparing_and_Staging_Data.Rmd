@@ -40,7 +40,7 @@ source("./CustomFunctions.R")
 
 #some libraries are used from python
 synapseclient <- import('synapseclient')
-synapseutils <- import('synapseutils') 
+synapseutils <- import('synapseutils')
 
 #Constants
 #File locations and directories
@@ -62,6 +62,7 @@ These are convienence functions for processees in this notebook. Functions commo
 #sent_time_local
 #sent_time_utc
 clean.user.names <- function(DF) {
+  `%!in%` <- Negate('%in%')
   tested<- names(DF)
   for(i in 1:length(tested)) {
     from <- c("user_id", 
@@ -73,7 +74,6 @@ clean.user.names <- function(DF) {
   
     
     if (tested[[i]] %in% from) tested[[i]] <- tolower(gsub("[^A-Za-z]","",tested[[i]]))
-    
   }
   names(DF) <- tested
   if ("responseid" %in% names(DF)) {
@@ -89,11 +89,17 @@ clean.user.names <- function(DF) {
   if ("sent_time_utc" %in% names(DF)) {
     DF <- subset(DF, select = -sent_time_utc)
   }
+  if ("createdAt" %in% names(DF)) {
+    DF$timestamp <- DF$createdAt
+    DF$createdAt <- NULL
+  }
   if ("response_local" %in% names(DF)) {
-    DF <- subset(DF, select = -response_local)
+    DF$timestamp <- DF$"response_local"
+    DF$"response_local" <- NULL
   }
   if ("response_utc" %in% names(DF)) {
-    DF <- subset(DF, select = -response_utc)
+    DF$"timestampUTC" <- DF$"response_utc"
+    DF$"response_utc" <- NULL
   }
   if ("week" %in% names(DF)) {
     DF <- subset(DF, select = -week)
@@ -101,9 +107,13 @@ clean.user.names <- function(DF) {
   if ("day" %in% names(DF)) {
     DF <- subset(DF, select = -day)
   }
+  if ("start" %in% names(DF)) {
+    if("timestamp" %!in% names(DF)) {
+      DF$date <- DF$start
+    }
+    DF$start <- NULL
+  }
   return(DF)
-
-
 }
 ```
 
@@ -140,9 +150,10 @@ V2 <- clean.user.names(V2)
 V1 <- subset(V1, select = -c(Age,State))
 V2 <- subset(V2, select = -c(ip_address, longitude, latitude, city, state))
 
+V2$timestamp <- V2$time_submitted
 #removing unnecessary data
-V1 <- subset(V1, select = -c(baseline_phq9))
-V2 <- subset(V2, select = -c(userAgent, time_started, onBoardingTime, sum_phq9, sum_phq10, Referer, heard_about_us, heard_about_us_language))  
+V1 <- subset(V1, select = -c(baseline_phq9, study_arm))
+V2 <- subset(V2, select = -c(userAgent, time_started, time_submitted, onBoardingTime, sum_phq9, sum_phq10, Referer, heard_about_us, heard_about_us_language))  
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_MetaData.csv", sep = ""), row.names = FALSE)
@@ -166,6 +177,14 @@ V2 <- find.data(MatchedRecords[1,]$V2Path)
 #fix usernames
 V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
+
+#removing unneeded time variables
+V1$passive_date_pacific <- NULL
+V2$date <- V2$passive_date
+V2$passive_date <- NULL
+
+V1$study_arm <- NULL
+
 #These two data frames appear to be substantially different. 
 #It is not clear how call duration in the V1 file might be transformed to the hours provided in the V2 file.
 #It is not clear how the sms length from V1 might be reconciled to the text length received, and text length sent vairables from V2
@@ -196,8 +215,10 @@ V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
 
 #removing unused time data
-V1 <- subset(V1, select = -c(start, phq2ResponseTimeSecs))
-V2 <- subset(V2, select = -c(phq2_date, phq2_date_minus_one, phq2_hod))
+V1 <- subset(V1, select = -c(study_arm, phq2ResponseTimeSecs, phq2_date_local))
+
+V2$timestamp <- V2$phq2_timestamp
+V2 <- subset(V2, select = -c(phq2_timestamp, phq2_date, phq2_date_minus_one, phq2_hod))
 
 
 #Load
@@ -235,8 +256,10 @@ V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
 
 #removing timing
-V1 <- subset(V1, select = -c(start, phq9ResponseTimeSecs, sum_phq10, sum_phq9))
+V1 <- subset(V1, select = -c(phq9ResponseTimeSecs, sum_phq10, sum_phq9))
 V2 <- subset(V2, select = -c(phq9_date, phq9_hod, sum_phq9))
+V2$timestamp <- V2$phq9_timestamp
+V2$phq9_timestamp <- NULL
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_PHQ9.csv", sep = ""), row.names = FALSE)
@@ -247,7 +270,7 @@ write.csv(V2 , paste(DATADIRECTORY, "New/V2_PHQ9.csv", sep = ""), row.names = FA
 
 energylevels_404.xls
 
-```{r load_Energy_Levels}
+```{r load_mental_health_screening}
 
 #Extract
 V1 <- find.data(MatchedRecords[5,]$V1Path)
@@ -257,10 +280,14 @@ V1 <- find.data(MatchedRecords[5,]$V1Path)
 #fix usernames
 V1 <- clean.user.names(V1)
 
+names(V1)[3] <- "screen_1"
+names(V1)[4] <- "screen_2"
+names(V1)[5] <- "screen_3"
+names(V1)[6] <- "screen_4"
 
 
 #Load
-write.csv(V1 , paste(DATADIRECTORY, "New/V1_EnergyLevels.csv", sep = ""), row.names = FALSE)
+write.csv(V1 , paste(DATADIRECTORY, "New/V1_mhealthscreen.csv", sep = ""), row.names = FALSE)
 #write.csv(V2 , paste(DATADIRECTORY, "New/V2_EnergyLevels.csv", sep = ""), row.names = FALSE)
 
 ```
@@ -278,7 +305,7 @@ V1 <- find.data(MatchedRecords[6,]$V1Path)
 V1 <- clean.user.names(V1)
 V1$gad7 <- NULL
 #change variables to gad_
-names(V1) <- c("brightenid","userid","gad7_1","gad7_2","gad7_3","gad7_4","gad7_5","gad7_6","gad7_7","gad7_S")
+names(V1) <- c("brightenid","userid","gad7_1","gad7_2","gad7_3","gad7_4","gad7_5","gad7_6","gad7_7","gad7_S", 'timestamp', 'timestampUTC')
 levels(V1$gad7_S) <- c(3,0,1,2)
 
 
@@ -299,7 +326,10 @@ V1 <- find.data(MatchedRecords[7,]$V1Path)
 #Transform
 #fix usernames
 V1 <- clean.user.names(V1)
-#removing 
+#renaming variables
+names(V1)[3] <- "happ_1"
+names(V1)[4] <- "happ_2"
+
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_HealthApps.csv", sep = ""), row.names = FALSE)
@@ -320,7 +350,16 @@ V2 <- find.data(MatchedRecords[8,]$V2Path)
 #fix usernames
 V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
-#These appear to be aligned wher ematching data are available
+names(V1)[3] <- "mhs_1"
+names(V1)[4] <- "mhs_2"
+names(V1)[5] <- "mhs_3"
+names(V1)[6] <- "mhs_4"
+names(V1)[7] <- "mhs_5"
+names(V2)[1] <- "mhs_1"
+names(V2)[2] <- "mhs_2"
+names(V2)[3] <- "mhs_3"
+names(V2)[4] <- "mhs_4"
+names(V2)[5] <- "mhs_5"
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_MentalHealthSvc.csv", sep = ""), row.names = FALSE)
@@ -341,7 +380,8 @@ V1 <- find.data(MatchedRecords[9,]$V1Path)
 #fix usernames
 V1 <- clean.user.names(V1)
 
-#check question format
+#rename question and levels
+names(V1)[3] <- "mood_1"
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_MoodAssessment.csv", sep = ""), row.names = FALSE)
@@ -366,11 +406,16 @@ V2 <- find.data(FileInformation[FileInformation$fileName == "sleep.csv",]$path)
 V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
 
-#from v1 remove
-#anything not aligned with V2, and sent time local and sent time utc
-# keep response_time_utc and response time local
-#move
-#questions to wiki
+#renamin variables
+names(V1)[3] <- "sleep_1"
+names(V1)[4] <- "sleep_2"
+names(V1)[5] <- "sleep_3"
+names(V2)[1] <- "sleep_1"
+names(V2)[2] <- "sleep_2"
+names(V2)[3] <- "sleep_3"
+levels(V1$sleep_1) <- c(1,2,3,4,5)
+levels(V1$sleep_2) <- c(2,3,4,1,5)
+levels(V1$sleep_3) <- c(1,2,3,4,5)
 
 #sleep.csv contains the full questionsand an extra variable "day" which I assume to be day in study, but is otherwise the same as sleep_brighten_v2.tsv. It is not clear what solution is desired here, but both were requested in the "files to keep"
 
@@ -429,10 +474,12 @@ V1 <- find.data(FileInformation[FileInformation$fileName == "appsatisfaction_408
 #Transform
 #fix usernames
 V1 <- clean.user.names(V1)
-#It might be worthwhile to change Yes/No to 1/0, but this depends on downstream use.... opinion?
 
-#
-
+#renaming questions
+names(V1)[3] <- "satis_1"
+names(V1)[4] <- "satis_2"
+names(V1)[5] <- "satis_3"
+names(V1)[6] <- "satis_4"
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_AppsSatisfaction.csv", sep = ""), row.names = FALSE)
 
@@ -448,7 +495,7 @@ sds_brighten_v2.tsv
 V1 <- find.data(FileInformation[FileInformation$fileName == "qualityoflife_401.xls",]$path)
 V2 <- find.data(FileInformation[FileInformation$fileName == "sds_brighten_v2.tsv",]$path)
 
-#Transform
+  #Transform
 #fix usernames
 V1 <- clean.user.names(V1)
 V2 <- clean.user.names(V2)
@@ -456,14 +503,15 @@ V2 <- clean.user.names(V2)
 names(V1)[3] <- "sds_1"
 names(V1)[4] <- "sds_2"
 names(V1)[5] <- "sds_3"
-names(V1)[6] <- "In the last week, how much were you set back by stressful events or personal problems such as work, home, social, health, or financial problems?"
-names(V1)[7] <- "In the past week, how much support have you received from friends, relatives, co-workers, etc., as a percentage of the amount you needed to cope?"
+names(V2)[1] <- "stress"
+names(V2)[2] <- "support"
 V1$sds <- NULL
-
 V2$sds_hod <- NULL
 V2$sds_score <- NULL
 V2$sds_date <- NULL
 
+V2$timestamp <- V2$sds_timestamp
+V2$sds_timestamp <- NULL
 
 #Load
 write.csv(V1 , paste(DATADIRECTORY, "New/V1_SDS.csv", sep = ""), row.names = FALSE)
@@ -475,7 +523,7 @@ write.csv(V2 , paste(DATADIRECTORY, "New/V2_SDS.csv", sep = ""), row.names = FAL
 ## GPS Agg
 gps_agg_brighten_v2.tsv
 
-```{r load_GPS_Agg_DISABLED}
+```{r load_GPS_Agg_DISABLED, eval=FALSE, include=FALSE}
 #Extract
 V2 <- find.data(FileInformation[FileInformation$fileName == "gps_agg_brighten_v2.tsv",]$path)
 
@@ -504,6 +552,9 @@ V2 <- find.data(FileInformation[FileInformation$fileName == "gps_features_bright
 V2 <- clean.user.names(V2)
 #Remove identifying information
 V2 <- subset(V2, select = -c(med_lon_perDay,med_lat_perDay))
+#standardizing unique date name
+V2$date <- V2$gps_date
+V2$gps_date <- NULL
 
 #Load
 write.csv(V2 , paste(DATADIRECTORY, "New/V2_GPSFeatures.csv", sep = ""), row.names = FALSE)
