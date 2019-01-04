@@ -11,3 +11,8 @@ local*.csv
 
 .ipynb_checkpoints
 *.csv
+gps.py
+get_gscap_source*
+utils.py
+weather.py
+__pycache__
