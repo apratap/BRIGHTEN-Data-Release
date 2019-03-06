@@ -33,3 +33,5 @@ phq9_brighten <- rbind(phq9_brighten_v1, phq9_brighten_v2[,colnames(phq9_brighte
 
 #write.csv(phq9_brighten, file="tmp_BRIGHTEN_longitudial_PHQ9.csv", quote = F, row.names = F)
 synStore(synapser::synBuildTable("PHQ-9", SYNPROJECT, phq9_brighten))
+
+
