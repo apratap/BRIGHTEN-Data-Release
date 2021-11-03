@@ -24,8 +24,8 @@ sideFill <- function(col1, col2, fillCol1=T, fillCol2=F){
   }
 }
 
-brightv1_userid_to_emails <- read.xls("~/Dropbox/BRIGHTEN/BRIGHTEN V1/BRIGHTEN V1 Data/Real Final BRIGHTEN V1 DATA/20180815_linking_ID_to_Emails_APcleaned_HAS_PHI.xls")
-brightv1_fullscreening_data <- fread("~/Dropbox/BRIGHTEN/BRIGHTEN V1/BRIGHTEN V1 Data/Real Final BRIGHTEN V1 DATA/20180815_enrollment_data_APcleaned_HAS_PHI.csv")
+brightv1_userid_to_emails <- read.xls("~/Dropbox/brighten/BRIGHTEN V1/BRIGHTEN V1 Data/Real Final BRIGHTEN V1 DATA/20180815_linking_ID_to_Emails_APcleaned_HAS_PHI.xls")
+brightv1_fullscreening_data <- fread("~/Dropbox/brighten/BRIGHTEN V1/BRIGHTEN V1 Data/Real Final BRIGHTEN V1 DATA/20180815_enrollment_data_APcleaned_HAS_PHI.csv")
 brightv1_fullscreening_data <- merge(brightv1_fullscreening_data, brightv1_userid_to_emails, all=T) %>% 
   dplyr::mutate(brightenid = id) %>%
   dplyr::select(-email, -id) %>%
@@ -54,6 +54,8 @@ mdata_brighten_v1  <- fread(synGet("syn10236547")$path, data.table = F) %>%
                 -ph9, -employed,
                 -survivaldays, -racerecoded, -hispanic, -income1, -income2, -ordinalincome) %>%
   dplyr::filter(!is.na(brightenid))
+
+View(mdata_brighten_v1)
 
 ##### Bunch of custom data cleaning to make sure we have the largest and cleanest dataset being released
 x <- merge(brightv1_fullscreening_data, mdata_brighten_v1, by = c('brightenid'), all=T)
@@ -106,10 +108,10 @@ brighten_v1 <- x %>%
          -specreferral, -minority, -phonetype, -highest_education)
 
 
-
 #for the repeat participants get the data that is most complete 
 #1. NA brighten id
 brighten_v1_NAs <- brighten_v1 %>% filter(is.na(brightenid))
+
 #2. brightenid 
 brighten_v1_nonNAs <- brighten_v1 %>% filter(!is.na(brightenid))
 brighten_v1_nonNAs <-  brighten_v1_nonNAs %>% ddply(.variables = c('brightenid'), .fun=function(df){
@@ -127,6 +129,7 @@ brighten_v1 <- brighten_v1 %>% select(-primary, -group, -medication, -psychiatri
   dplyr::mutate('study' = 'Brighten-v1',
                 startDate = lubridate::mdy_hm(startDate))
 colnames(brighten_v1) <- tolower(colnames(brighten_v1))
+brighten_v1 <- as.data.frame(brighten_v1)
 
 
 ###############
@@ -152,9 +155,10 @@ brighten_v2$study_arm[!brighten_v2$study_arm %in% c('HTips', 'EVO', 'iPST')] = N
 brighten_v2_baseline_PHQ9 <- brighten_v2 %>% select(brightenid, contains('phq9'))
 brighten_v2 <- brighten_v2 %>% select(-contains('phq9')) %>% dplyr::mutate('study' = 'Brighten-v2')
 colnames(brighten_v2) <- tolower(colnames(brighten_v2))
+
+
 #rearrange cols
 brighten_v1 <- brighten_v1[,colnames(brighten_v2)]
-
 
 
 ### Combined merged dataset
@@ -222,12 +226,18 @@ x$marital_status <- tmp_replace_cols(x$marital_status, c('Single/Never Married')
 ##########
 # Full baseline data
 ##########
-FULL_BRIGHTEN_DATA = x %>% mutate(brightenid = as.character(brightenid))
-colnames(FULL_BRIGHTEN_DATA)
-#write.csv(FULL_BRIGHTEN_DATA, file="tmp_BRIGHTEN_mdata.csv", quote = F, row.names = F)
+FULL_BRIGHTEN_DATA = x %>% mutate(participant_id = as.character(brightenid)) %>%
+  select(-brightenid) %>% select(participant_id, everything()) %>%
+  arrange(participant_id)
 
+
+##REMOVE ZIP CODE - PER GOVERNANCE REQUEST FOR DATA RELEASE
+FULL_BRIGHTEN_DATA <- FULL_BRIGHTEN_DATA %>% dplyr::select(-zipcode)
+
+
+#write.csv(FULL_BRIGHTEN_DATA, file="tmp_BRIGHTEN_mdata.csv", quote = F, row.names = F)
 ### Push the data to Synapse
-synStore(synapser::synBuildTable("Baseline metadata", SYNPROJECT, FULL_BRIGHTEN_DATA))
+synStore(synapser::synBuildTable("Baseline Demographics", SYNPROJECT, FULL_BRIGHTEN_DATA))
 
 
 
@@ -236,18 +246,24 @@ synStore(synapser::synBuildTable("Baseline metadata", SYNPROJECT, FULL_BRIGHTEN_
 ## BASELINE PHQ-9
 #########
 brighten_v1_baseline_PHQ9 <- brighten_v1_baseline_PHQ9 %>% filter(!is.na(brightenid)) %>% 
-  select(-phq9_10, -sum_phq9) %>% dplyr::mutate('study' = 'Brighten-v1')
-brighten_v2_baseline_PHQ9 <- brighten_v2_baseline_PHQ9 %>% filter(!is.na(brightenid)) %>% select(-baseline_phq9) %>%
-  dplyr::mutate('study' = 'Brighten-v2')
-baseline_PHQ9_data <- rbind(brighten_v1_baseline_PHQ9, brighten_v2_baseline_PHQ9 %>% select(colnames(brighten_v1_baseline_PHQ9)))
-baseline_PHQ9_data <- baseline_PHQ9_data %>% mutate(brightenid = as.character(brightenid)) %>% 
-  filter(!is.na(brightenid))
-to_delete <- baseline_PHQ9_data %>% group_by(brightenid) %>% apply(1, function(x){
+  dplyr::mutate('study' = 'Brighten-v1') %>% select(-phq9_10, -sum_phq9)
+brighten_v2_baseline_PHQ9 <- brighten_v2_baseline_PHQ9 %>% filter(!is.na(brightenid)) %>%
+  dplyr::mutate('study' = 'Brighten-v2') %>% select(-baseline_phq9)
+
+baseline_PHQ9_data <- rbind(brighten_v1_baseline_PHQ9, brighten_v2_baseline_PHQ9 %>% 
+                              select(colnames(brighten_v1_baseline_PHQ9)))
+baseline_PHQ9_data <- baseline_PHQ9_data %>% mutate(participant_id = as.character(brightenid)) %>% 
+  filter(!is.na(participant_id))  %>% select(-brightenid) %>%
+  select(participant_id, everything())
+to_delete <- baseline_PHQ9_data %>% group_by(participant_id) %>% apply(1, function(x){
   sum(is.na(x) | x == '') == 9
 })
 baseline_PHQ9_data = baseline_PHQ9_data[!to_delete,]
-baseline_PHQ9_data <- baseline_PHQ9_data %>% inner_join(FULL_BRIGHTEN_DATA %>%  select(brightenid, startdate)) %>%
+baseline_PHQ9_data <- baseline_PHQ9_data %>% inner_join(FULL_BRIGHTEN_DATA %>%  select(participant_id, startdate)) %>%
   mutate(baselinePHQ9date = as.Date(lubridate::ymd_hms(startdate))) %>% select(-startdate)
+
+View(baseline_PHQ9_data)
+
 synStore(synapser::synBuildTable("Baseline PHQ9 Survey", SYNPROJECT, baseline_PHQ9_data))
 #write.csv(baseline_PHQ9_data, file="tmp_BRIGHTEN_baseline_PHQ9.csv", quote = F, row.names = F)
 
@@ -262,3 +278,4 @@ apply(FULL_BRIGHTEN_DATA, 2, function(x){
     length(unique(x))
   }
 })
+
