@@ -55,7 +55,6 @@ mdata_brighten_v1  <- fread(synGet("syn10236547")$path, data.table = F) %>%
                 -survivaldays, -racerecoded, -hispanic, -income1, -income2, -ordinalincome) %>%
   dplyr::filter(!is.na(brightenid))
 
-View(mdata_brighten_v1)
 
 ##### Bunch of custom data cleaning to make sure we have the largest and cleanest dataset being released
 x <- merge(brightv1_fullscreening_data, mdata_brighten_v1, by = c('brightenid'), all=T)
@@ -231,13 +230,29 @@ FULL_BRIGHTEN_DATA = x %>% mutate(participant_id = as.character(brightenid)) %>%
   arrange(participant_id)
 
 
+#### ONLY HAVE ENROLLED PARTICIPANTS
+FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY <-  FULL_BRIGHTEN_DATA %>% filter(!is.na(participant_id))
+
 ##REMOVE ZIP CODE - PER GOVERNANCE REQUEST FOR DATA RELEASE
-FULL_BRIGHTEN_DATA <- FULL_BRIGHTEN_DATA %>% dplyr::select(-zipcode)
+FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY <- FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY %>% dplyr::select(-zipcode, -country, -state, -status)
 
 
 #write.csv(FULL_BRIGHTEN_DATA, file="tmp_BRIGHTEN_mdata.csv", quote = F, row.names = F)
 ### Push the data to Synapse
-synStore(synapser::synBuildTable("Baseline Demographics", SYNPROJECT, FULL_BRIGHTEN_DATA))
+synStore(synapser::synBuildTable("Baseline Demographics", SYNPROJECT, FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY))
+
+
+########################################################
+### Clean File for creating screening & enrollment map
+########################################################
+brighten_participant_zipcodes <- FULL_BRIGHTEN_DATA %>% 
+  dplyr::filter(country == 'United States') %>%
+  dplyr::select(state, country, zipcode, participant_id) %>%
+  dplyr::mutate(status = ifelse(is.na(participant_id), 'screened', 'enrolled'))
+
+
+write.table( brighten_participant_zipcodes, file="brighten_participant_zipcodes.tsv",
+            sep="\t", row.names = F)
 
 
 
