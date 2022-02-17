@@ -1,3 +1,7 @@
+"""
+The Zip codes were found using the package pgeocode as we had to determine the latitude and longitude of a 3 digit zip.
+"""
+
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
