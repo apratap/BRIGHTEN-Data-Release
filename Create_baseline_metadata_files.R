@@ -238,8 +238,13 @@ FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY <- FULL_BRIGHTEN_DATA_ENROLLED_PAR
 
 
 #write.csv(FULL_BRIGHTEN_DATA, file="tmp_BRIGHTEN_mdata.csv", quote = F, row.names = F)
+
 ### Push the data to Synapse
-synStore(synapser::synBuildTable("Baseline Demographics", SYNPROJECT, FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY))
+brighen_demog_data_synid <- synStore(synapser::synBuildTable("Baseline Demographics", SYNPROJECT, FULL_BRIGHTEN_DATA_ENROLLED_PARTICIPANTS_ONLY))
+
+synSetProvenance(entity = brighen_demog_data_synid,
+                 activity = synapser::Activity(used = c("syn10236547", "syn11687434"),
+                                executed = "https://github.com/apratap/BRIGHTEN-Data-Release/blob/master/Create_baseline_metadata_files.R"))
 
 
 ########################################################
@@ -279,7 +284,14 @@ baseline_PHQ9_data <- baseline_PHQ9_data %>% inner_join(FULL_BRIGHTEN_DATA %>%  
 
 View(baseline_PHQ9_data)
 
-synStore(synapser::synBuildTable("Baseline PHQ9 Survey", SYNPROJECT, baseline_PHQ9_data))
+brighten_baseline_phq9_synid<- synStore(synapser::synBuildTable("Baseline PHQ9 Survey", SYNPROJECT, baseline_PHQ9_data))
+
+synSetProvenance(entity = brighten_baseline_phq9_synid,
+                 activity = synapser::Activity(used = c("syn10236547", "syn11687434"),
+                                               executed = "https://github.com/apratap/BRIGHTEN-Data-Release/blob/master/Create_baseline_metadata_files.R"))
+
+
+
 #write.csv(baseline_PHQ9_data, file="tmp_BRIGHTEN_baseline_PHQ9.csv", quote = F, row.names = F)
 
 
