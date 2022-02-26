@@ -8,6 +8,13 @@ ron_working_notes.Rmd
 Reports/
 storage bin
 local*.csv
-
+/oneOffCode*
+/customDataRelease*
+/Figs_N_Tables*
 .ipynb_checkpoints
 *.csv
+gps.py
+get_gscap_source*
+utils.py
+weather.py
+__pycache__
