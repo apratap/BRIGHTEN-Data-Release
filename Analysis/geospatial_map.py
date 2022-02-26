@@ -10,7 +10,13 @@ import pgeocode
 from shapely.geometry import Point, MultiPolygon, Polygon
 import shapely
 import random
-df = pd.read_csv(r"C:\Users\calvi\Downloads\brighten_participant_zipcodes.tsv", sep='\t')
+
+
+## The input file is prepared from the underlying raw demog data that has participant self-reported zipcode data
+df = pd.read_csv(r"brighten_participant_zipcodes.tsv", sep='\t')
+
+
+
 lat_long={}
 usa_codes = pgeocode.Nominatim('us')
 zipcode = usa_codes._data_frame
@@ -26,6 +32,9 @@ df = df[df['zipcode'].fillna(0).astype(int).astype(str).isin(list(lat_long.keys(
 df['median_zip'] = df['zipcode'].apply(lambda x: lat_long[str(int(x)).zfill(3)])
 df= df[df['median_zip'].notna()]
 
+
+
+
 df['median_lat'] = df['median_zip'].apply(lambda x: x[0] +random.random()/2-.25)
 df['median_long'] = df['median_zip'].apply(lambda x: x[1]+random.random()/2-.25)
 df['median_long'] = [med if state != 'HI' else med+52 for med, state in zip(df['median_long'],df['state'])]
@@ -33,6 +42,8 @@ df['median_lat'] = [med if state != 'HI' else med+5 for med, state in zip(df['me
 
 df['median_long'] = [med if state != 'AK' else ((med+35)+117)*.35 -117 for med, state in zip(df['median_long'],df['state'])]
 df['median_lat'] = [med if state != 'AK' else ((med-36)-27)*.35 + 27 for med, state in zip(df['median_lat'],df['state'])]
+
+
 
 usa = gpd.read_file(r'C:\Users\calvi\Downloads\beer-locations\data-analysis\visualization\shapefiles\states_21basic\states.shp')
 
