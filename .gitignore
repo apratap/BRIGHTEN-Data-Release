@@ -8,6 +8,6 @@ ron_working_notes.Rmd
 Reports/
 storage bin
 local*.csv
-
+.idea
 .ipynb_checkpoints
 *.csv
