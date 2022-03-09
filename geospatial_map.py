@@ -1,5 +1,7 @@
 """
 The Zip codes were found using the package pgeocode as we had to determine the latitude and longitude of a 3 digit zip.
+https://github.com/gboeing/beer-locations/tree/master/data-analysis/visualization/shapefiles/states_21basic is where you
+you download the shapes of the US states.
 """
 
 import geopandas as gpd
@@ -7,10 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import pgeocode
-from shapely.geometry import Point, MultiPolygon, Polygon
+from shapely.geometry import MultiPolygon
 import shapely
 import random
-df = pd.read_csv(r"C:\Users\calvi\Downloads\brighten_participant_zipcodes.tsv", sep='\t')
+
+#read in zipcode data
+df = pd.read_csv(r".\brighten_participant_zipcodes.tsv", sep='\t')
+
+#Since the brighten zip codes are 3 digit, we are using pgeocode's 5 digit zipcodes and latlong to find median latlong
 lat_long={}
 usa_codes = pgeocode.Nominatim('us')
 zipcode = usa_codes._data_frame
@@ -22,24 +28,28 @@ def get_latlong(zip):
         lat_long[zip] = (np.median(zipcode[zipcode['zip'] == zip]['latitude'].to_numpy()),np.median(zipcode[zipcode['zip'] == zip]['longitude'].to_numpy()))
 zipcode['median_zip'] = zipcode['zip'].apply(lambda x: get_latlong(x))
 df = df[df['zipcode'].fillna(0).astype(int).astype(str).isin(list(lat_long.keys()))]
-
 df['median_zip'] = df['zipcode'].apply(lambda x: lat_long[str(int(x)).zfill(3)])
 df= df[df['median_zip'].notna()]
 
+#Here we jitter the latlongs so participants aren't stacked
 df['median_lat'] = df['median_zip'].apply(lambda x: x[0] +random.random()/2-.25)
 df['median_long'] = df['median_zip'].apply(lambda x: x[1]+random.random()/2-.25)
+
+#moving Hawaii and Alaska zip codes to the correct location on the plots
 df['median_long'] = [med if state != 'HI' else med+52 for med, state in zip(df['median_long'],df['state'])]
 df['median_lat'] = [med if state != 'HI' else med+5 for med, state in zip(df['median_lat'],df['state'])]
-
 df['median_long'] = [med if state != 'AK' else ((med+35)+117)*.35 -117 for med, state in zip(df['median_long'],df['state'])]
 df['median_lat'] = [med if state != 'AK' else ((med-36)-27)*.35 + 27 for med, state in zip(df['median_lat'],df['state'])]
 
-usa = gpd.read_file(r'C:\Users\calvi\Downloads\beer-locations\data-analysis\visualization\shapefiles\states_21basic\states.shp')
+#importing the state shapes
+usa = gpd.read_file(r'.\states.shp')
 
-fig, ax = plt.subplots(figsize=(30,30))
+#Moving the Alaska and Hawaii polygons
 usa.at[0,'geometry'] =  MultiPolygon((shapely.affinity.translate(x,52,5) for x in usa.loc[0]['geometry']))
 usa.at[50,'geometry'] =  MultiPolygon((shapely.affinity.scale(shapely.affinity.translate(x,33,-36),.35,.35) for x in usa.loc[50]['geometry']))
 
+#plotting the points and the polygons of the states
+fig, ax = plt.subplots(figsize=(30,30))
 usa.plot(ax = ax, alpha = 0.3, color = '#d6d5d4', edgecolor = '#525252')
 for val in ['screened', 'enrolled']:
     plt.scatter(df[df['status']==val]['median_long'].to_numpy(),df[df['status']==val]['median_lat'].to_numpy(), s = 1, c='orange' if val == 'enrolled' else 'blue', label = val)
