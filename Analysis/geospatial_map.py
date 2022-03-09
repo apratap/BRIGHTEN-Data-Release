@@ -13,8 +13,8 @@ from shapely.geometry import MultiPolygon
 import shapely
 import random
 
-#read in zipcode data
-df = pd.read_csv(r".\brighten_participant_zipcodes.tsv", sep='\t')
+## The input file is prepared from the underlying raw demog data that has participant self-reported zipcode data
+df = pd.read_csv(r"brighten_participant_zipcodes.tsv", sep='\t')
 
 #Since the brighten zip codes are 3 digit, we are using pgeocode's 5 digit zipcodes and latlong to find median latlong
 lat_long={}
